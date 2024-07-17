@@ -145,7 +145,7 @@ namespace QFramework.Example
             mModel = this.GetModel<ICounterAppModel>();
 
             // View 组件获取
-            mBtnAdd = transform.Find("BtnAdd").GetComponent<Button>();
+            mBtnAdd = transform.Find("AddBtn").GetComponent<Button>();
             mBtnSub = transform.Find("BtnSub").GetComponent<Button>();
             mCountText = transform.Find("CountText").GetComponent<Text>();
 

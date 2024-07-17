@@ -23,7 +23,7 @@ namespace QFramework.Example
             {
                 Debug.Log(mName);
             }).UnRegisterWhenGameObjectDestroyed(gameObject);
-
+             
             mSomeValue.RegisterWithInitValue(newcount =>
             {
                 UpdateView();
