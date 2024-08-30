@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 605b1b2f6ca1203419582e3eca81e979, type: 3}
+  m_Name: Level3
+  m_EditorClassIdentifier: 
+  Move: 60
+  ScoreRequest: 60
+  ColorSpawnRate: 100
+  bubbles:
+  - pos: {x: -3, y: 0.75}
+    size: 0
+    numb: 3
+    numColor: 1
+    colorRate: 1
+  - pos: {x: 3.5, y: -1}
+    size: 0
+    numb: 3
+    numColor: 1
+    colorRate: 1
+  - pos: {x: -0.5, y: -1.3}
+    size: 0
+    numb: 2
+    numColor: 2
+    colorRate: 1
+  - pos: {x: -3.2, y: -1.3}
+    size: 1
+    numb: 2
+    numColor: 2
+    colorRate: 1
+  icePos: []
