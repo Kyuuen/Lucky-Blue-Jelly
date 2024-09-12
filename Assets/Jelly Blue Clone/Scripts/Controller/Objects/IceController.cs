@@ -54,11 +54,11 @@ public class IceController : MonoBehaviour, IController
                     }
                 }
 
-            });
+            }).UnRegisterWhenGameObjectDestroyed(gameObject);
 
             this.RegisterEvent<FirecrackerDestroyEvent>(e =>
             {
-                if (e._iceIds != null)
+                if (e._iceIds != null && !_isLocked)
                 {
                     foreach (var id in e._iceIds)
                     {
@@ -69,7 +69,7 @@ public class IceController : MonoBehaviour, IController
                         }
                     }
                 }
-            });
+            }).UnRegisterWhenGameObjectDestroyed(gameObject);
 
         }
     }
@@ -103,6 +103,8 @@ public class IceController : MonoBehaviour, IController
         //Debug.Log($"{GetComponent<SpriteRenderer>().enabled}");
         _graphic.SetActive(true);
         _graphic.GetComponent<Animator>().SetBool("isBreak", true);
+        gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        gameObject.GetComponent<Rigidbody2D>().gravityScale = 0;
         Destroy(gameObject, 2.5f);
     }
 

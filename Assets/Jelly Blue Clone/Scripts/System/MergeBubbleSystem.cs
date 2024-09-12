@@ -200,6 +200,15 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
     {
         //Debug.Log("Before: " + JsonConvert.SerializeObject(take.jellyColor));
         //Debug.Log("Before: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
+        bool beingTakenFull = false;
+        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
+        {
+            //Debug.Log("Reach max");
+            beingTakenFull = true;
+            isFull = beingTakenFull;
+            return 0;
+        }
+
         List<int> tempColors = new List<int>();
         foreach (int jelly in beingTaken.jellyColor)
         {
@@ -208,7 +217,7 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
                 tempColors.Add(jelly);
             }
         }
-        bool beingTakenFull = false;
+        
         //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
         foreach (int jelly in tempColors)
         {
@@ -227,17 +236,24 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
         //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
         foreach (int jelly in tempColors)
         {
-            beingTaken.jellyColor.Add(jelly);
-            movedCount++;
-            take.jellyColor.Remove(jelly);
-            if (beingTaken.jellyColor.Count == beingTaken.MaxNumb)
+            if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
             {
                 //Debug.Log("Reach max");
                 beingTakenFull = true;
                 break;
             }
+            beingTaken.jellyColor.Add(jelly);
+            movedCount++;
+            take.jellyColor.Remove(jelly);
         }
         isFull = beingTakenFull;
+
+        // Nếu take vẫn còn chứa màu trùng sau khi trao đổi, dừng việc tiếp tục
+        if (take.jellyColor.Contains(color) && beingTakenFull)
+        {
+            Debug.Log("Không thể hoàn thành trao đổi do beingTaken đã đầy.");
+            return 0; // Dừng trao đổi để tránh lặp lại
+        }
         //Debug.Log("After: " + JsonConvert.SerializeObject(take.jellyColor));
         //Debug.Log("After: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
         return movedCount;
@@ -247,6 +263,11 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
     {
         //Debug.Log("Before: " + JsonConvert.SerializeObject(take.jellyColor));
         //Debug.Log("Before: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
+        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
+        {
+            return 0;
+        }
+
         int movedCount = 0;
         List<int> tempColors = new List<int>();
         foreach (int jelly in beingTaken.jellyColor)
@@ -273,15 +294,22 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
         //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
         foreach (int jelly in tempColors)
         {
+            if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
+            {
+                Debug.Log("beingTaken is at max number");
+                break;
+            }
             take.jellyColor.Remove(jelly);
             beingTaken.jellyColor.Add(jelly);
             movedCount++;
-            if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
-            {
-                Debug.Log("Reach max");
-                break;
-            }
         }
+
+        if (movedCount == 0)
+        {
+            Debug.Log("Không thể trao đổi màu thêm nữa");
+            return 0; // Không trao đổi được màu nào, thoát khỏi hàm
+        }
+
         //Debug.Log("After: " + JsonConvert.SerializeObject(take.jellyColor));
         //Debug.Log("After: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
         return movedCount;
@@ -322,7 +350,7 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
             {
                 id = bubbleId,
                 type = bubble.jellyColor[0],
-                size = bubble.Size
+                maxNumb = bubble.MaxNumb
             });
         }
     }

@@ -9,6 +9,7 @@ TagManager:
   - Canvas
   - Enemy
   - LevelObstacle
+  - Map
   layers:
   - Default
   - TransparentFX

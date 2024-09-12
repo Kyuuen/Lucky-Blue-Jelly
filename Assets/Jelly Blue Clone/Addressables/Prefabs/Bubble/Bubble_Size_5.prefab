@@ -137,7 +137,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.9000001, y: 1.7986428, z: 1.8035121}
+  m_LocalScale: {x: 2.5, y: 2.3666348, z: 2.3730419}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8822281598147349022}
@@ -158,7 +158,7 @@ Rigidbody2D:
   m_Mass: 100
   m_LinearDrag: 1
   m_AngularDrag: 0.05
-  m_GravityScale: 2
+  m_GravityScale: 3
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -326,15 +326,10 @@ MonoBehaviour:
   _isLocked: 0
   _requestPoint: 0
   _lockText: {fileID: 0}
-  _cloneMask:
-    serializedVersion: 2
-    m_Bits: 8
-  _ignoreMask:
-    serializedVersion: 2
-    m_Bits: 1056
   distance: 0
   extents: {x: 0, y: 0, z: 0}
   isDone: 0
+  _firstHit: 0
   _rb: {fileID: 0}
   _animator: {fileID: 3671662629227364167}
   _spriteRenderer: {fileID: 7069839030541889703}

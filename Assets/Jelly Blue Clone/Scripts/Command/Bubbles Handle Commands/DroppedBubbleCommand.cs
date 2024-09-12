@@ -4,11 +4,11 @@ using UnityEngine;
 using QFramework;
 public class DroppedBubbleCommand : AbstractCommand, ICommand
 {
-    private IGameSceneModel mModel;
+    private IGameSceneModel _gameSceneModel;
     protected override void OnExecute()
     {
-        mModel = this.GetModel<IGameSceneModel>();
-        mModel.IsDropping = false;
+        _gameSceneModel = this.GetModel<IGameSceneModel>();
+        _gameSceneModel.IsDropping = false;
         this.SendEvent<DroppedBubbleEvent>();
     }
 }

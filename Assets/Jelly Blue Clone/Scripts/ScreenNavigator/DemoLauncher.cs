@@ -12,6 +12,8 @@ public class DemoLauncher : UnityScreenNavigatorLauncher, IController
 {
     public static WindowContainerManager ContainerManager { get; private set; }
 
+    [SerializeField] GameObject preLoadImage;
+
     protected override void OnAwake()
     {
         ContainerManager = this;
@@ -24,9 +26,11 @@ public class DemoLauncher : UnityScreenNavigatorLauncher, IController
 
     private async UniTaskVoid OpenScene()
     {
-        var options = new ActivityOptions(ResourceKeys.LoadingScenePrefab(), true);
-        ActivityContainer.Find(ContainerKey.Activities).Show(options);
-        
+
+        await UniTask.WaitForSeconds(0);
+         var options = new ActivityOptions(ResourceKeys.LoadingScenePrefab(), true);
+         await ActivityContainer.Find(ContainerKey.Activities).ShowAsync(options);
+        Destroy(preLoadImage);
     }
 
     IArchitecture IBelongToArchitecture.GetArchitecture()

@@ -15,10 +15,8 @@ public class DragToMoveUI : ZBase.UnityScreenNavigator.Core.Activities.Activity,
 
     private GameObject pointHand;
 
-    private IUISystem _uiSystem;
     void Awake()
     {
-        _uiSystem = this.GetSystem<IUISystem>();
 
         Vector2 startPoint, endPoint;
         startPoint = Camera.main.ScreenToWorldPoint(_startPoint.position);
@@ -35,7 +33,7 @@ public class DragToMoveUI : ZBase.UnityScreenNavigator.Core.Activities.Activity,
         if (Input.GetMouseButtonDown(0))
         {
             Destroy(pointHand);
-            ActivityContainer.Find(ContainerKey.Activities).Hide(ResourceKeys.DragToMoveUIPrefab());
+            ActivityContainer.Find(ContainerKey.Activities).Hide(ResourceKeys.DragToMoveUIPrefab(), false);
         }
     }
 

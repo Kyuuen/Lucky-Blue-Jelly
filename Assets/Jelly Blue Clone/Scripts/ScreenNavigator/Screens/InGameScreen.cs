@@ -98,7 +98,7 @@ public class InGameScreen : ZBase.UnityScreenNavigator.Core.Screens.Screen, ICon
     async UniTaskVoid GameOver()
     {
         var option = new ViewOptions(ResourceKeys.LevelFailPrefab(), true);
-        await UniTask.Delay(1000);
+        await UniTask.WaitForSeconds(1);
         await ModalContainer.Find(ContainerKey.Modals).PushAsync(option);
     }
 

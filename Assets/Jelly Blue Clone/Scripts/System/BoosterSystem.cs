@@ -107,9 +107,12 @@ public class BoosterSystem : AbstractSystem, IBoosterSystem
 
     public void FirecrackerDestroy(List<int> bubbleIds, List<int> iceIds)
     {
-        foreach(int bubbleId in bubbleIds)
+        if(bubbleIds != null)
         {
-            _scoreSystem.ChangeScore(bubbleId);
+            foreach (int bubbleId in bubbleIds)
+            {
+                _scoreSystem.ChangeScore(bubbleId);
+            }
         }
         this.SendEvent(new FirecrackerDestroyEvent
         {

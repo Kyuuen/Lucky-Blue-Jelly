@@ -15,7 +15,7 @@ public class StrawberryAnimation : MonoBehaviour, IController
             GetComponent<Animator>().SetBool("moveDone", true);
             UniTask.Create(async () =>
             {
-                await UniTask.Delay(3000);
+                await UniTask.WaitForSeconds(3);
                 this.SendCommand(new BoosterInactivateCommand
                 {
                     _boosterType = 1,

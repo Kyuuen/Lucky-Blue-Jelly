@@ -43,25 +43,21 @@ public class BoosterPopup : ZBase.UnityScreenNavigator.Core.Modals.Modal, IContr
     void WatchAds()
     {
         //attach ads event here
-        Debug.Log(_type);
         switch (_type)
         {
             case 0:
                 {
                     _prefModel.UseOfHammer.Value += 1;
-                    Debug.Log($"hammer: {_prefModel.UseOfHammer.Value}");
                     break;
                 }
             case 1:
                 {
                     _prefModel.UseOfStrawberry.Value+=1;
-                    Debug.Log($"straw: {_prefModel.UseOfStrawberry.Value}");
                     break;
                 }
             case 2:
                 {
                     _prefModel.UseOfFirecracker.Value += 1;
-                    Debug.Log($"fire cracker: {_prefModel.UseOfFirecracker.Value}");
                     break;
                 }
         }

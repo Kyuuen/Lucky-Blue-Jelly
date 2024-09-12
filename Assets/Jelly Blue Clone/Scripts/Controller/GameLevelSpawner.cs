@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 
 public class GameLevelSpawner : MonoBehaviour, IController
 {
-    [SerializeField] private int testLevel; 
+    //[SerializeField] private int testLevel; 
     private GameObject currentLevel;
     int currentLevelIndex;
 

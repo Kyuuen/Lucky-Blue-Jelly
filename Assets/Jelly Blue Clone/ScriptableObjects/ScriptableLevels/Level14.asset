@@ -16,32 +16,27 @@ MonoBehaviour:
   ScoreRequest: 140
   ColorSpawnRate: 80
   bubbles:
-  - pos: {x: -3.6, y: 0}
+  - pos: {x: -3.6, y: 0.5}
     size: 1
     numb: 2
     numColor: 1
     colorRate: 1
-  - pos: {x: 2.8, y: -0.6}
+  - pos: {x: -3, y: -2}
     size: 1
     numb: 3
     numColor: 2
     colorRate: 1
-  - pos: {x: -2.4, y: -3}
+  - pos: {x: 2.2, y: 0}
     size: 2
     numb: 4
     numColor: 2
     colorRate: 2
-  - pos: {x: 3.6, y: 1.6}
+  - pos: {x: -3, y: -4.3}
     size: 2
     numb: 5
     numColor: 1
     colorRate: 1
-  - pos: {x: 1.8, y: -3.4}
-    size: 3
-    numb: 6
-    numColor: 3
-    colorRate: 2
-  - pos: {x: -1.8, y: 1}
+  - pos: {x: 2.4, y: -4}
     size: 3
     numb: 6
     numColor: 3

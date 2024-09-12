@@ -14,19 +14,20 @@ public class HammerAnimation : MonoBehaviour, IController
         _scoreSystem = this.GetSystem<IScoreSystem>();
     }
 
-    public void PlayAnimation(Transform bubble, int iD)
+    public async void PlayAnimation(Transform bubble, int iD)
     {
-        this.SendCommand(new BoosterInactivateCommand
+        gameObject.GetComponent<Rigidbody2D>().DOMove(bubble.position + offset, 0.5f).OnComplete(async () =>
         {
-            _boosterType = 0,
-            _isPopupOn = false
-        }) ;
-        gameObject.GetComponent<Rigidbody2D>().DOMove(bubble.position + offset, 0.5f).OnComplete(() =>
-        {
-            _scoreSystem.ChangeScore(iD);
-            bubble.gameObject.GetComponent<BubbleController>().IsDone(0);
             GetComponent<Animator>().SetBool("moveDone", true);
-            Destroy(gameObject, 2.5f);
+            await UniTask.WaitForSeconds(1);
+            _scoreSystem.ChangeScore(iD);
+            bubble.gameObject.GetComponent<BubbleController>().IsDone();
+            this.SendCommand(new BoosterInactivateCommand
+            {
+                _boosterType = 0,
+                _isPopupOn = false
+            });
+            Destroy(gameObject, 1.5f);
         });
     }
 

@@ -24,6 +24,7 @@ public class LoadingSceneUI : ZBase.UnityScreenNavigator.Core.Activities.Activit
 
     void Awake()
     {
+        Application.targetFrameRate = 60;
         _prefModel = this.GetModel<IPlayerPrefModel>();
     }
 

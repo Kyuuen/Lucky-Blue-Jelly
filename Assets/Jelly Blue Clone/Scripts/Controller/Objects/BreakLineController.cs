@@ -23,7 +23,7 @@ public class BreakLineController : MonoBehaviour, IController
     }
     private void OnTriggerStay2D(Collider2D collision)
     {
-        if (!_gameSceneModel.IsDropping && !gameIsEnd && collision.gameObject.layer == LayerMask.NameToLayer("Clone"))
+        if (!gameIsEnd && collision.gameObject.layer == LayerMask.NameToLayer("Clone"))
         {
             count -= Time.deltaTime;
             if(count <= 0)
@@ -36,7 +36,13 @@ public class BreakLineController : MonoBehaviour, IController
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (!_gameSceneModel.IsDropping)
+        if(collision.tag == "Bubble" && !collision.isTrigger && !collision.GetComponent<BubbleController>()._firstHit)
+        {
+            this.SendCommand<DroppedBubbleCommand>();
+            collision.GetComponent<BubbleController>()._firstHit = true;
+        }
+        
+        if (!_gameSceneModel.IsDropping && !collision.CompareTag("Jelly"))
         {
             count = delayTime;
         }

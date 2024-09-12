@@ -12,6 +12,7 @@ using UnityEngine.AddressableAssets;
 using System.Runtime.CompilerServices;
 using UnityEngine.EventSystems;
 using ZBase.UnityScreenNavigator.Core.Modals;
+using UnityEngine.UI;
 
 public class GameSceneController : MonoBehaviour, IController
 {
@@ -246,7 +247,7 @@ public class GameSceneController : MonoBehaviour, IController
         foreach(int id in e._iDs)
         {
             if (_bubbles[id] != null)
-            _bubbles[id].GetComponent<BubbleController>().IsDone(0);
+            _bubbles[id].GetComponent<BubbleController>().IsDone();
         }
     }
 
@@ -321,14 +322,14 @@ public class GameSceneController : MonoBehaviour, IController
         BubbleController _bubbleController = newBubble.GetComponent<BubbleController>();
         _bubbleController.iD = _bubbleIds;
 
-        Vector3 spawnOffset = new Vector3();
+        Vector3 spawnOffset = new Vector3(-0.05f, -0.05f, 0);
 
         foreach (int type in _bubbleInfo.jellyColor)
         {
             _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
 
             GameObject newJelly = Instantiate(_jellyToSpawn, newBubble.transform.position + spawnOffset, Quaternion.identity);
-            spawnOffset += new Vector3(0.1f, 0.1f, 0);
+            spawnOffset += new Vector3(0.01f, 0.1f, 0);
             newJelly.transform.SetParent(newBubble.transform, true);
             newBubble.GetComponent<BubbleController>().jellies.Add(newJelly);
         }
@@ -356,6 +357,7 @@ public class GameSceneController : MonoBehaviour, IController
         foreach(var destination in _thisLevel.icePos)
         {
             GameObject newIce = Instantiate(_iceObject, destination, Quaternion.identity);
+            newIce.transform.SetParent(this.transform);
             newIce.GetComponent<IceController>().id = _iceIds;
             _iceIds++;
         }
@@ -363,10 +365,12 @@ public class GameSceneController : MonoBehaviour, IController
 
     private void SpawnJellies(GameObject newBubble, Vector2 spot, Rigidbody2D bubbleRigidbody)
     {
+        Vector2 spawnOffset = new Vector2();
         foreach (int type in _bubbleInfo.jellyColor)
         {
             GameObject _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
-            GameObject newJelly = Instantiate(_jellyToSpawn, spot, Quaternion.identity);
+            GameObject newJelly = Instantiate(_jellyToSpawn, spot + spawnOffset, Quaternion.identity);
+            spawnOffset += new Vector2(0.1f, 0.1f);
             newJelly.transform.SetParent(newBubble.transform, true);
             newBubble.GetComponent<BubbleController>().jellies.Add(newJelly);
         }
@@ -380,6 +384,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     void MergeBubble(MergeBubbleEvent e)
     {
+        AudioManager.Instance.PlayBubbleSound(2);
         if (e.mergeStatus == 1)
         {
             MergeTwoSingleColorBubble(e.mergeId, e.breakId);
@@ -529,7 +534,8 @@ public class GameSceneController : MonoBehaviour, IController
 
     void DoneBubble(DoneBubbleEvent e)
     {
-        _bubbles[e.id].GetComponent<BubbleController>().IsDone(e.size);   
+        _bubbles[e.id].GetComponent<BubbleController>().PrevDone(e.maxNumb);
+        _bubbles[e.id].GetComponent<BubbleController>().IsDone();
     }
 
     void OnMouseDrag()
@@ -544,7 +550,7 @@ public class GameSceneController : MonoBehaviour, IController
         {
             if (_dropBubble != null || !_boosterIsOn)
             {
-                if (!EventSystem.current.IsPointerOverGameObject())
+                if (!IsPointerOverButton())
                 {
                     Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
@@ -559,7 +565,7 @@ public class GameSceneController : MonoBehaviour, IController
         {
             if (_dropBubble != null || !_boosterIsOn)
             {
-                if (!EventSystem.current.IsPointerOverGameObject())
+                if (!IsPointerOverButton())
                 {
                     Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
@@ -573,7 +579,7 @@ public class GameSceneController : MonoBehaviour, IController
         }
 
         if (!_boosterIsOn) return;
-        if (Input.GetMouseButtonDown(0))  // Kiểm tra nếu click chuột trái
+        if (Input.GetMouseButtonDown(0))
         {
             if(_boosterType == 0 || _boosterType == 1)
             {
@@ -595,6 +601,29 @@ public class GameSceneController : MonoBehaviour, IController
             }
             
         }
+    }
+
+    public bool IsPointerOverButton()
+    {
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = Input.mousePosition
+        };
+
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, raycastResults);
+
+        foreach (RaycastResult result in raycastResults)
+        {
+            if (result.gameObject.GetComponent<Button>() != null)
+            {
+                // The pointer is over a button
+                return true;
+            }
+        }
+
+        // The pointer is not over any buttons
+        return false;
     }
 
     void OnDestroy()

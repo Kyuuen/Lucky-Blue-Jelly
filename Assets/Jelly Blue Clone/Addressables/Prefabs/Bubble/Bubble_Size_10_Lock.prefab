@@ -117,8 +117,6 @@ GameObject:
   - component: {fileID: 957245517808118653}
   - component: {fileID: 4789505277389141212}
   - component: {fileID: 3133161747800764269}
-  - component: {fileID: 1175628123303957592}
-  - component: {fileID: 62033504580632501}
   - component: {fileID: 1613666545961957032}
   m_Layer: 3
   m_Name: Bubble_Size_10_Lock
@@ -137,7 +135,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.6, y: 2.4613004, z: 2.4679637}
+  m_LocalScale: {x: 3.4, y: 3.2186244, z: 3.2273374}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 6008707660835111833}
@@ -256,60 +254,6 @@ PolygonCollider2D:
       - {x: 0.26047203, y: 0.38322803}
       - {x: 0.13705122, y: 0.4363364}
   m_UseDelaunayMesh: 0
---- !u!253 &1175628123303957592
-BuoyancyEffector2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2390438937028108806}
-  m_Enabled: 1
-  m_UseColliderMask: 1
-  m_ColliderMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_SurfaceLevel: 2
-  m_Density: 2
-  m_LinearDrag: 0
-  m_AngularDrag: 0
-  m_FlowAngle: 5
-  m_FlowMagnitude: 5
-  m_FlowVariation: 5
---- !u!58 &62033504580632501
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2390438937028108806}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_ForceSendLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ForceReceiveLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_ContactCaptureLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_CallbackLayers:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  m_IsTrigger: 1
-  m_UsedByEffector: 1
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.44
 --- !u!114 &1613666545961957032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -322,7 +266,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d76b41935f5b4a646bfefccd671a4cce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Id: 0
+  iD: 0
   jellies: []
   _isLocked: 1
   _requestPoint: 0
@@ -330,6 +274,7 @@ MonoBehaviour:
   distance: 0
   extents: {x: 0, y: 0, z: 0}
   isDone: 0
+  _firstHit: 0
   _rb: {fileID: 0}
   _animator: {fileID: 3064118145948918409}
   _spriteRenderer: {fileID: 904572461341863135}

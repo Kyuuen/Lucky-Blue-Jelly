@@ -22,7 +22,7 @@ public class GamePanel : MonoBehaviour, IController
     private LevelObjectSpawner _thisLevel;
     private int currentLevelIndex = 1;
 
-    [SerializeField] private GameObject _testOne;
+    [SerializeField] private GameObject _jellyUI;
 
     private IScoreSystem _scoreSystem;
     private IUISystem _uiSystem;
@@ -114,18 +114,18 @@ public class GamePanel : MonoBehaviour, IController
     void OnJellyCollect(OnJellyCollectEvent e)
     {
         Vector3 offset = new Vector3(Random.Range(-1f, 1f), Random.Range(-1f, 1f), 0);
-        GameObject testSquare = Instantiate(_testOne, e.jelliesScreenPos, Quaternion.identity);
-        testSquare.transform.SetParent(transform);
+        GameObject jellyUI = Instantiate(_jellyUI, e.jelliesScreenPos, Quaternion.identity);
+        jellyUI.transform.SetParent(transform);
 
-        Image img = testSquare.GetComponent<Image>();
+        Image img = jellyUI.GetComponent<Image>();
         img.sprite = Resources.Load<Sprite>(ResourceKeys.JellySpriteSource(e.type));
 
-        Rigidbody2D rb = testSquare.AddComponent<Rigidbody2D>();
-        rb.DOMove(testSquare.transform.position + offset, 0.5f).OnComplete(() =>
+        Rigidbody2D rb = jellyUI.AddComponent<Rigidbody2D>();
+        rb.DOMove(jellyUI.transform.position + offset, 0.1f).OnComplete(() =>
         {
-            rb.DOMove(_scoreImageTrans.position, 1).OnComplete(() =>
+            rb.DOMove(_scoreImageTrans.position, 0.8f).OnComplete(() =>
             {
-                Destroy(testSquare);
+                Destroy(jellyUI);
             });
         });
     }

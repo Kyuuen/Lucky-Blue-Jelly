@@ -5,6 +5,7 @@ using UnityEngine;
 using DG.Tweening;
 using ZBase.UnityScreenNavigator.Core.Modals;
 using TMPro;
+using Newtonsoft.Json;
 
 public class FireCrackerAnimation : MonoBehaviour, IController
 {
@@ -12,7 +13,6 @@ public class FireCrackerAnimation : MonoBehaviour, IController
 
     [SerializeField] private LayerMask _bubbleMask;
     [SerializeField] private LayerMask _iceMask;
-    [SerializeField] private LayerMask _wireMask;
 
     SpriteRenderer _spriteRenderer;
     Vector3 extents;
@@ -28,17 +28,18 @@ public class FireCrackerAnimation : MonoBehaviour, IController
             ? ModalContainer.Of(transform)
             : ModalContainer.Find(ContainerKey.Modals);
         modalContainer.Pop(false);
-        this.SendCommand(new BoosterInactivateCommand
-        {
-            _boosterType = 2,
-            _isPopupOn = false
-        });
+        
         gameObject.GetComponent<Rigidbody2D>().DOMove(mousePos, 1f).SetEase(Ease.OutSine).OnComplete(() =>
         {
             this.SendCommand(new FirecrackerDestroyCommand
             {
                 _bubbleIds = FindBubbleInRadius(_bubbleMask),
-                _iceIds = FindIceInRadius(_iceMask)
+                _iceIds = FindIceInRadius(_iceMask),
+            });
+            this.SendCommand(new BoosterInactivateCommand
+            {
+                _boosterType = 2,
+                _isPopupOn = false
             });
             GetComponent<SpriteRenderer>().enabled = false;
             _particleSystem.Play();
@@ -79,13 +80,18 @@ public class FireCrackerAnimation : MonoBehaviour, IController
 
         // Tìm tất cả các collider trong bán kính
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius, layerMask);
+        List<string> colliderName = new();
+        foreach(var collider in colliders)
+        {
+            colliderName.Add(collider.gameObject.name);
+        }
         //lọc tìm tag obstacle
         if (colliders.Length <= 0) return null;
         else
         {
             foreach (var collider in colliders)
             {
-                if (collider.gameObject.GetComponent<BubbleController>().iD != 100000)
+                if (collider.gameObject.GetComponent<BubbleController>().iD != 100000 && !collider.isTrigger)
                 {
                     foundObjects.Add(collider.gameObject.GetComponent<BubbleController>().iD);
                 }

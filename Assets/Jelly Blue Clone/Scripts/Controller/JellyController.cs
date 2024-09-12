@@ -1,11 +1,9 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using QFramework;
 using Unity.VisualScripting;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
-using static IBoosterSystem;
 
 public class JellyController : MonoBehaviour, IController
 {
@@ -13,17 +11,16 @@ public class JellyController : MonoBehaviour, IController
 
     public Vector2 _destination;
     public float _duration;
-    public bool isBeingCollected;
+    private bool isBeingCollected;
     private DistanceJoint2D _joint;
     private Rigidbody2D _rb;
     private CircleCollider2D _circleCollider;
-
-    private bool _boosterIsOn;
-    private int _boosterStatus;
+    private Transform _bubbleTransform;
 
     [SerializeField] private SpriteRenderer _spriteRenderer;
     void Awake()
     {
+        _bubbleTransform = null;
         _joint = gameObject.AddComponent<DistanceJoint2D>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
         _rb = GetComponent<Rigidbody2D>();
@@ -53,8 +50,19 @@ public class JellyController : MonoBehaviour, IController
             ConnectToBubble(bubble.GetComponent<BubbleController>()._rb, bubble.GetComponent<BubbleController>().distance);
             transform.SetParent(bubble.transform, true);
             _circleCollider.enabled=true;
-            _rb.drag = 5;
+            _rb.drag = 0;
             bubble.GetComponent<BubbleController>().ContinuePhysic();
+        });
+    }
+
+    public void GetBubbleTransform(Transform bubble)
+    {
+        _circleCollider.enabled = false;
+        _rb.drag = 1000;
+        DisConnectToBubble();
+        _rb.DOMove(bubble.position, .25f).OnComplete(() =>
+        {
+            _bubbleTransform = bubble;
         });
     }
 
@@ -72,10 +80,18 @@ public class JellyController : MonoBehaviour, IController
         Destroy(gameObject);
     }
 
+    public void OnBeingCollected()
+    {
+        isBeingCollected = true;
+    }
 
     private void Update()
     {
         if (isBeingCollected) StartCoroutine(Collected());
+        if(_bubbleTransform != null)
+        {
+            transform.position = _bubbleTransform.position;
+        }
     }
     public void ConnectToBubble(Rigidbody2D rb, float distance)
     {
