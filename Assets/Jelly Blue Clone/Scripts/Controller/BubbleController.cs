@@ -124,6 +124,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
         foreach (var jelly in jellies)
         {
             jelly.GetComponent<JellyController>().ConnectToBubble(_rb, distance);
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(0.01f * jellies.Count);
         }
     }
 
@@ -254,6 +255,11 @@ public class BubbleController : MonoBehaviour, IBubbleController
     {
         isDone = true;
         _animator.SetBool("isCracked", true);
+        if (_rb != null)
+        {
+            _rb.gravityScale = 0;
+            _rb.drag = 1000;
+        }
         foreach (var jelly in jellies)
         {
             if (jelly != null)
@@ -262,11 +268,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
         await UniTask.Delay(500);
         AudioManager.Instance.PlayBubbleSound(3);
 
-        if (_rb != null)
-        {
-            _rb.gravityScale = 0;
-            _rb.drag = 1000;
-        }
+        
         DisConnectToBubble();
         //GetComponent<SpriteRenderer>().enabled = false;
 
@@ -323,6 +325,26 @@ public class BubbleController : MonoBehaviour, IBubbleController
         }
 
         return foundObjects;
+    }
+
+    public Vector2 GetRandomPointInPolygon()
+    {
+        PolygonCollider2D polygonCollider = this.GetComponent<PolygonCollider2D>();
+        Bounds bounds = polygonCollider.bounds;
+
+        while (true)
+        {
+            Vector2 randomPoint = new Vector2(
+                Random.Range(bounds.min.x, bounds.max.x),
+                Random.Range(bounds.min.y, bounds.max.y)
+            );
+
+            // Kiểm tra xem điểm có nằm trong polygon không
+            if (polygonCollider.OverlapPoint(randomPoint))
+            {
+                return randomPoint;
+            }
+        }
     }
 
     IArchitecture IBelongToArchitecture.GetArchitecture()

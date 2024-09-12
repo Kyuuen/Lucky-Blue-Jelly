@@ -27,7 +27,7 @@ public class DemoLauncher : UnityScreenNavigatorLauncher, IController
     private async UniTaskVoid OpenScene()
     {
 
-        await UniTask.WaitForSeconds(0);
+        await UniTask.WaitForSeconds(7);
          var options = new ActivityOptions(ResourceKeys.LoadingScenePrefab(), true);
          await ActivityContainer.Find(ContainerKey.Activities).ShowAsync(options);
         Destroy(preLoadImage);

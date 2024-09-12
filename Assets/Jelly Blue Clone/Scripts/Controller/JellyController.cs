@@ -60,10 +60,10 @@ public class JellyController : MonoBehaviour, IController
         _circleCollider.enabled = false;
         _rb.drag = 1000;
         DisConnectToBubble();
-        _rb.DOMove(bubble.position, .25f).OnComplete(() =>
-        {
-            _bubbleTransform = bubble;
-        });
+        //_rb.DOMove(bubble.position, .25f).OnComplete(() =>
+        //{
+        //    _bubbleTransform = bubble;
+        //});
     }
 
     IEnumerator Collected()
@@ -100,6 +100,11 @@ public class JellyController : MonoBehaviour, IController
         _joint.autoConfigureDistance = false;
         _joint.distance = distance;
         _joint.maxDistanceOnly = true;
+    }
+
+    public void ReduceColliderRadius(float value)
+    {
+        _circleCollider.radius = 0.7f - value;
     }
 
     public void DisConnectToBubble()

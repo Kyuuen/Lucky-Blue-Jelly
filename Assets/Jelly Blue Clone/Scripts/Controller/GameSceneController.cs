@@ -58,6 +58,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     private int _bubbleIds;
     private int _iceIds;
+    private float _radiusReduceAmount = 0.015f;
 
     private Vector3 goldPos;
 
@@ -329,9 +330,9 @@ public class GameSceneController : MonoBehaviour, IController
             _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
 
             GameObject newJelly = Instantiate(_jellyToSpawn, newBubble.transform.position + spawnOffset, Quaternion.identity);
-            spawnOffset += new Vector3(0.01f, 0.1f, 0);
+            spawnOffset += new Vector3(0.01f, 0.01f, 0);
             newJelly.transform.SetParent(newBubble.transform, true);
-            newBubble.GetComponent<BubbleController>().jellies.Add(newJelly);
+            _bubbleController.jellies.Add(newJelly);
         }
         newBubble.GetComponent<BubbleController>().ConnectToBubble();
         return newBubble;
@@ -352,6 +353,26 @@ public class GameSceneController : MonoBehaviour, IController
         return newBubble;
     }
 
+    private void SpawnJellies(GameObject newBubble, Vector2 spot, Rigidbody2D bubbleRigidbody)
+    {
+        BubbleController _bubbleController = newBubble.GetComponent<BubbleController>();
+        Vector2 spawnOffset = new Vector2(0.01f,0.01f);
+        foreach (int type in _bubbleInfo.jellyColor)
+        {
+            GameObject _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
+            GameObject newJelly = Instantiate(_jellyToSpawn, spot + spawnOffset, Quaternion.identity);
+            spawnOffset += new Vector2(0.01f, 0.01f);
+            newJelly.transform.SetParent(newBubble.transform, true);
+            _bubbleController.jellies.Add(newJelly);
+        }
+        newBubble.GetComponent<BubbleController>().ConnectToBubble();
+        bubbleRigidbody.bodyType = RigidbodyType2D.Dynamic;
+        if (_bubbleIds == _thisLevel.bubbles.Length - 1)
+        {
+            _spawnJellySystem.gameStarting = false;
+        }
+    }
+
     public void SpawnIce()
     {
         foreach(var destination in _thisLevel.icePos)
@@ -360,25 +381,6 @@ public class GameSceneController : MonoBehaviour, IController
             newIce.transform.SetParent(this.transform);
             newIce.GetComponent<IceController>().id = _iceIds;
             _iceIds++;
-        }
-    }
-
-    private void SpawnJellies(GameObject newBubble, Vector2 spot, Rigidbody2D bubbleRigidbody)
-    {
-        Vector2 spawnOffset = new Vector2();
-        foreach (int type in _bubbleInfo.jellyColor)
-        {
-            GameObject _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
-            GameObject newJelly = Instantiate(_jellyToSpawn, spot + spawnOffset, Quaternion.identity);
-            spawnOffset += new Vector2(0.1f, 0.1f);
-            newJelly.transform.SetParent(newBubble.transform, true);
-            newBubble.GetComponent<BubbleController>().jellies.Add(newJelly);
-        }
-        newBubble.GetComponent<BubbleController>().ConnectToBubble();
-        bubbleRigidbody.bodyType = RigidbodyType2D.Dynamic;
-        if (_bubbleIds == _thisLevel.bubbles.Length - 1)
-        {
-            _spawnJellySystem.gameStarting = false;
         }
     }
 
@@ -415,6 +417,11 @@ public class GameSceneController : MonoBehaviour, IController
             _mergeBubble.jellies.Add(jelly);
         }
 
+        foreach(var jelly in _mergeBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
+        }
+
         _breakBubble.jellies.Clear();
         _breakBubble.IsMerge();
     }
@@ -438,6 +445,11 @@ public class GameSceneController : MonoBehaviour, IController
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_mergeBubble.gameObject, jellyMoveDuration);
             _mergeBubble.jellies.Add(jelly);
             _breakBubble.jellies.Remove(jelly);
+        }
+
+        foreach (var jelly in _mergeBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
         }
 
     }
@@ -485,7 +497,17 @@ public class GameSceneController : MonoBehaviour, IController
             _breakBubble.jellies.Add(jelly);
             _mergeBubble.jellies.Remove(jelly);
         }
-}
+
+        foreach (var jelly in _mergeBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
+        }
+
+        foreach (var jelly in _breakBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _breakBubble.jellies.Count);
+        }
+    }
 
     void TradeMultyColorsBubble(int mergeId, int breakId, List<int> colorTypes, int moveAmount)
     {
@@ -529,6 +551,16 @@ public class GameSceneController : MonoBehaviour, IController
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_breakBubble.gameObject, jellyMoveDuration);
             _breakBubble.jellies.Add(jelly);
             _mergeBubble.jellies.Remove(jelly);
+        }
+
+        foreach (var jelly in _mergeBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
+        }
+
+        foreach (var jelly in _breakBubble.jellies)
+        {
+            jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _breakBubble.jellies.Count);
         }
     }
 
