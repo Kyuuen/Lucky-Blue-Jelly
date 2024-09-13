@@ -19,6 +19,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
 {
     public int iD;
     public List<GameObject> jellies;
+    [HideInInspector] public int maxNumb;
 
     [SerializeField] private bool _isLocked;
     [ShowIf("_isLocked")]
@@ -35,6 +36,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
 
     [HideInInspector] public bool _firstHit = false;
     private bool _spawnEarly;
+    private bool _gameIsEnd;
     [HideInInspector] public Rigidbody2D _rb;
 
     [SerializeField] private Animator _animator;
@@ -56,6 +58,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
         Vibration.Init();
         _gameSceneModel = this.GetModel<IGameSceneModel>();
         _mergeBubbleSystem = this.GetSystem<IMergeBubbleSystem>();
+        _gameIsEnd = false;
 
         _spawnEarly = false;
         _rb = GetComponent<Rigidbody2D>();
@@ -96,10 +99,16 @@ public class BubbleController : MonoBehaviour, IBubbleController
             _boosterIsOn = false;
             BoosterDeactivate();
         }).UnRegisterWhenGameObjectDestroyed(gameObject);
+
+        this.RegisterEvent<OnLevelWinEvent>(e =>
+        {
+            _gameIsEnd = true;
+        });
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (_gameIsEnd) return;
         if (collision.gameObject.layer == 3 && !_isLocked && !collision.gameObject.GetComponent<BubbleController>()._isLocked)
         {
             _mergeBubbleSystem.GetBubbleContact(iD, collision.gameObject.GetComponent<BubbleController>().iD);

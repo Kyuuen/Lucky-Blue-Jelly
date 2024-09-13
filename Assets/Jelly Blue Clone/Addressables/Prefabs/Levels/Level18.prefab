@@ -338,7 +338,7 @@ GameObject:
   - component: {fileID: 7327381850415149053}
   m_Layer: 0
   m_Name: Level18
-  m_TagString: Untagged
+  m_TagString: Level
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -973,11 +973,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 2.57
+      value: 3.81
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.08
+      value: 0.45
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalPosition.z
@@ -989,15 +989,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalRotation.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalRotation.y
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalRotation.z
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9163868821230098767, guid: 9f6b004ea6556cd46bf88c539c6e18ba, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -20,7 +20,7 @@ public class GamePanel : MonoBehaviour, IController
     [SerializeField] private Button _switchBtns;
 
     private LevelObjectSpawner _thisLevel;
-    private int currentLevelIndex = 1;
+    private int _currentLevelIndex = 1;
 
     [SerializeField] private GameObject _jellyUI;
 
@@ -39,12 +39,33 @@ public class GamePanel : MonoBehaviour, IController
         _scoreSystem = this.GetSystem<IScoreSystem>();
         _uiSystem = this.GetSystem<IUISystem>();
 
+        if (_prefModel.CurrentLevel.Value <= 20)
+        {
+            _currentLevelIndex = _prefModel.CurrentLevel.Value;
+            this.SendCommand(new RandomLevelCommand
+            {
+                _levelIndex = _currentLevelIndex,
+            });
+        }
+        else
+        {
+            _currentLevelIndex = Random.Range(2, 20);
+            this.SendCommand(new RandomLevelCommand
+            {
+                _levelIndex = _currentLevelIndex,
+            });
+        }
+        _thisLevel = await GetCurrentLevelConfig();
+
+        this.SendCommand<PreGameStartCommand>();
+
         _uiSystem.MainCanvas = gameObject.GetComponent<RectTransform>();
         _uiSystem.GoldUIPos = _goldImageTrans;
         //_uiSystem.CameraResizer(Camera.main);
 
         this.RegisterEvent<OnJellyCollectEvent>(OnJellyCollect).UnRegisterWhenGameObjectDestroyed(gameObject);
         this.RegisterEvent<PostLevelWinEvent>(PostLevelWin).UnRegisterWhenGameObjectDestroyed(gameObject);
+        
 
         _thisLevel = await GetCurrentLevelConfig();
 
@@ -91,6 +112,8 @@ public class GamePanel : MonoBehaviour, IController
     {
 
     }
+    
+    
 
     void ActivateBooster(int status, int use)
     {
@@ -150,7 +173,18 @@ public class GamePanel : MonoBehaviour, IController
 
     async void GetNextLevel(int levelIndex)
     {
-        currentLevelIndex = levelIndex;
+        if (levelIndex <= 20)
+        {
+            _currentLevelIndex = levelIndex;
+        }
+        else
+        {
+            _currentLevelIndex = Random.Range(2, 20);
+            this.SendCommand(new RandomLevelCommand
+            {
+                _levelIndex = _currentLevelIndex,
+            });
+        }
         _thisLevel = await GetCurrentLevelConfig();
         OnScoreChanged(_gameSceneModel.Score.Value);
         OnMoveChanged(_gameSceneModel.Move.Value);
@@ -158,7 +192,7 @@ public class GamePanel : MonoBehaviour, IController
 
     async UniTask<LevelObjectSpawner> GetCurrentLevelConfig()
     {
-        UniTask<LevelObjectSpawner> asyncOperationHandle = Addressables.LoadAssetAsync<LevelObjectSpawner>(ResourceKeys.CurrentLevelPrefab(currentLevelIndex)).Task.AsUniTask();
+        UniTask<LevelObjectSpawner> asyncOperationHandle = Addressables.LoadAssetAsync<LevelObjectSpawner>(ResourceKeys.CurrentLevelPrefab(_currentLevelIndex)).Task.AsUniTask();
         LevelObjectSpawner result = await asyncOperationHandle;
         return result;
     }

@@ -21,12 +21,12 @@ MonoBehaviour:
     numb: 1
     numColor: 1
     colorRate: 1
-  - pos: {x: 2.5, y: 2.5}
+  - pos: {x: -2, y: -4.5}
     size: 2
     numb: 4
     numColor: 2
     colorRate: 1
-  - pos: {x: -0.8, y: -0.6}
+  - pos: {x: -0.8, y: 0}
     size: 3
     numb: 6
     numColor: 2

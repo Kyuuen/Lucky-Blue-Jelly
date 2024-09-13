@@ -76,12 +76,6 @@ public class LoadingSceneUI : ZBase.UnityScreenNavigator.Core.Activities.Activit
         ActivityContainer.Find(ContainerKey.Activities).Show(options);
     }
 
-    public override UniTask WillExit(Memory<object> args) 
-    {
-        this.SendCommand<PreGameStartCommand>();
-        return UniTask.CompletedTask;
-    }
-
     IArchitecture IBelongToArchitecture.GetArchitecture()
     {
         return BlueJellyClone.Interface;

@@ -3,21 +3,21 @@ using QFramework;
 
 public class OnGameStartCommand : AbstractCommand, ICommand
 {
-    public int move;
-    private IGameSceneModel mModel;
-    private IScoreSystem mScoreSystem;
+    public int _move;
+    private IGameSceneModel _gameModel;
+    private IScoreSystem _scoreSystem;
 
-    private IEventCenterSystem mEventCenterSystem;
+    private IEventCenterSystem _eventCenterSystem;
     protected override void OnExecute()
     {
-        mModel = this.GetModel<IGameSceneModel>();
-        mScoreSystem = this.GetSystem<IScoreSystem>();
-        mEventCenterSystem = this.GetSystem<IEventCenterSystem>();
-        mScoreSystem.levelIsEnd = false;
-        mModel.IsDropping = false;
-        mModel.SetNewScore();
-        mModel.SetMove(move);
+        _gameModel = this.GetModel<IGameSceneModel>();
+        _scoreSystem = this.GetSystem<IScoreSystem>();
+        _eventCenterSystem = this.GetSystem<IEventCenterSystem>();
+        _scoreSystem.levelIsEnd = false;
+        _gameModel.IsDropping = false;
+        _gameModel.SetNewScore();
+        _gameModel.SetMove(_move);
 
-        mEventCenterSystem.SendOnGameStartEvent();
+        _eventCenterSystem.SendOnGameStartEvent();
     }
 }

@@ -63,6 +63,7 @@ public class GameSceneController : MonoBehaviour, IController
     private Vector3 goldPos;
 
     private bool _gameIsEnd;
+    private bool _isDragging;
     bool vibrationIsAvailable = true;
 
     private IMouseMovementSystem _mouseMovementSystem;
@@ -89,6 +90,7 @@ public class GameSceneController : MonoBehaviour, IController
         _bubbles = new List<GameObject>();
         _gameIsEnd = false;
         _boosterIsOn = false;
+        _isDragging = false;
         vibrationIsAvailable = _playerPrefModel.VibrateAvailable.Value;
 
         this.RegisterEvent<OnGameStartEvent>(OnGameStart).UnRegisterWhenGameObjectDestroyed(gameObject.transform.parent.gameObject);
@@ -178,6 +180,7 @@ public class GameSceneController : MonoBehaviour, IController
         _bubbleInfo = _gameSceneModel.Bubbles[_bubbleIds];
         _spawnBubble = GetBubbleToSpawn(_spawnSpot.position);
         _spawnBubble.GetComponent<BubbleController>().ChangeMask(true);
+        
         _bubbles.Add(_spawnBubble);
         _bubbleIds++;
     }
@@ -270,6 +273,24 @@ public class GameSceneController : MonoBehaviour, IController
         });
         Invoke(nameof(CalculateScore), 5f);
     }
+    async void CalculateScore()
+    {
+        List<int> idBubblesLeft = new List<int>();
+        for (int i = 0; i < _bubbles.Count - 2; i++)
+        {
+            if (_bubbles[i] != null)
+            {
+                idBubblesLeft.Add(_bubbles[i].GetComponent<BubbleController>().iD);
+                await UniTask.Delay(250);
+                SpawnRayToGold(_bubbles[i]);
+            }
+        }
+
+        this.SendCommand(new OnLevelWinCommand()
+        {
+            idBubblesLeft = idBubblesLeft
+        });
+    }
     
     async void SpawnRayToGold(GameObject bubble)
     {
@@ -292,25 +313,6 @@ public class GameSceneController : MonoBehaviour, IController
         coin.GetComponent<BunchOfCoin>().PlayCoinCollectAnimation(destination, duration);
     }
 
-    async void CalculateScore()
-    {
-        List<int> idBubblesLeft = new List<int>();
-        for (int i = 0; i < _bubbles.Count - 2; i++)
-        {
-            if (_bubbles[i] != null)
-            {
-                idBubblesLeft.Add(_bubbles[i].GetComponent<BubbleController>().iD);
-                await UniTask.Delay(250);
-                SpawnRayToGold(_bubbles[i]);
-            }
-        }
-
-        this.SendCommand(new OnLevelWinCommand()
-        {
-            idBubblesLeft = idBubblesLeft
-        });
-    }
-
     void GameOver(GameOverEvent e)
     {
         
@@ -322,7 +324,7 @@ public class GameSceneController : MonoBehaviour, IController
         GameObject newBubble = Instantiate(_bubbleToSpawn, spot, Quaternion.identity);
         BubbleController _bubbleController = newBubble.GetComponent<BubbleController>();
         _bubbleController.iD = _bubbleIds;
-
+        _bubbleController.maxNumb = _bubbleInfo.MaxNumb;
         Vector3 spawnOffset = new Vector3(-0.05f, -0.05f, 0);
 
         foreach (int type in _bubbleInfo.jellyColor)
@@ -342,9 +344,10 @@ public class GameSceneController : MonoBehaviour, IController
     {
         _bubbleToSpawn = _bubbleSizePrefabs[_bubbleInfo.Size];
         GameObject newBubble = Instantiate(_bubbleToSpawn, spot, Quaternion.identity);
-
-        newBubble.GetComponent<BubbleController>().iD = _bubbleIds;
-        newBubble.GetComponent<BubbleController>().IsSpawnEarly();
+        BubbleController newBubbleController = newBubble.GetComponent<BubbleController>();
+        newBubbleController.iD = _bubbleIds;
+        newBubbleController.IsSpawnEarly();
+        newBubbleController.maxNumb = _bubbleInfo.MaxNumb;
         Rigidbody2D bubbleRigidbody = newBubble.GetComponent<Rigidbody2D>();
         bubbleRigidbody.bodyType = RigidbodyType2D.Static;
 
@@ -462,11 +465,19 @@ public class GameSceneController : MonoBehaviour, IController
 
         _breakBubble.DisConnectToType(colorType, true);
         _mergeBubble.DisConnectToType(colorType, false);
-        foreach (var jelly in _breakBubble.jellies)  //Move same color from breakBubble to mergeBubble
+        // Di chuyển jelly có màu tương ứng từ breakBubble sang mergeBubble
+        foreach (var jelly in _breakBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorType)
             {
-                jellies.Add(jelly);
+                if (_mergeBubble.jellies.Count < _mergeBubble.maxNumb)  // Chỉ di chuyển nếu chưa đạt giới hạn
+                {
+                    jellies.Add(jelly);
+                }
+                else
+                {
+                    break;  // Dừng khi mergeBubble đầy
+                }
             }
         }
 
@@ -479,15 +490,15 @@ public class GameSceneController : MonoBehaviour, IController
 
         jellies.Clear();
 
-
+        // Di chuyển các màu khác từ mergeBubble sang breakBubble với giới hạn moveAmount
         int count = moveAmount;
-        foreach (var jelly in _mergeBubble.jellies) //Move different color from mergeBubble to breakBubble
+        foreach (var jelly in _mergeBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type != colorType)
             {
                 jellies.Add(jelly);
                 count--;
-                if (count == 0) break; //Until reach limit
+                if (count == 0) break;  // Dừng khi đạt giới hạn moveAmount
             }
         }
 
@@ -498,6 +509,7 @@ public class GameSceneController : MonoBehaviour, IController
             _mergeBubble.jellies.Remove(jelly);
         }
 
+        // Cập nhật collider sau khi di chuyển
         foreach (var jelly in _mergeBubble.jellies)
         {
             jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
@@ -518,11 +530,19 @@ public class GameSceneController : MonoBehaviour, IController
         _mergeBubble.DisConnectToType(colorTypes[1], true);
         _breakBubble.DisConnectToType(colorTypes[0], true);
 
-        foreach (var jelly in _breakBubble.jellies) //Take colorType[0]
+        // Di chuyển jelly có màu colorTypes[0] từ breakBubble sang mergeBubble
+        foreach (var jelly in _breakBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorTypes[0])
             {
-                jellies.Add(jelly);
+                if (_mergeBubble.jellies.Count < _mergeBubble.maxNumb)  // Dừng khi mergeBubble đầy
+                {
+                    jellies.Add(jelly);
+                }
+                else
+                {
+                    break;
+                }
             }
         }
 
@@ -536,13 +556,14 @@ public class GameSceneController : MonoBehaviour, IController
         jellies.Clear();
 
         int count = moveAmount;
+        // Di chuyển jelly có màu colorTypes[1] từ mergeBubble sang breakBubble
         foreach (var jelly in _mergeBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorTypes[1])
             {
                 jellies.Add(jelly);
                 count--;
-                if (count == 0) break; //Until reach limit
+                if (count == 0) break;  // Dừng khi đạt giới hạn moveAmount
             }
         }
 
@@ -553,6 +574,7 @@ public class GameSceneController : MonoBehaviour, IController
             _mergeBubble.jellies.Remove(jelly);
         }
 
+        // Cập nhật collider sau khi di chuyển
         foreach (var jelly in _mergeBubble.jellies)
         {
             jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
@@ -570,17 +592,11 @@ public class GameSceneController : MonoBehaviour, IController
         _bubbles[e.id].GetComponent<BubbleController>().IsDone();
     }
 
-    void OnMouseDrag()
-    {
-        if (_dropBubble == null || _boosterIsOn) return;
-        _mouseMovementSystem.MouseDrag(_dropBubble.transform, offset, extents, leftBorder, rightBorder);
-    }
-
-    void Update()
+    void FixedUpdate()
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (_dropBubble != null || !_boosterIsOn)
+            if (_dropBubble != null || !_boosterIsOn || !_gameSceneModel.IsDropping)
             {
                 if (!IsPointerOverButton())
                 {
@@ -588,32 +604,20 @@ public class GameSceneController : MonoBehaviour, IController
                     RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
                     if (hit.collider != null && _dropBubble != null)
                     {
+                        _isDragging = true;
                         _mouseMovementSystem.MouseClick(_dropBubble.transform, offset, extents, leftBorder, rightBorder);
                     }
                 }
             }
         }
-        if (Input.GetMouseButtonUp(0))
+        if (_isDragging)
         {
-            if (_dropBubble != null || !_boosterIsOn)
-            {
-                if (!IsPointerOverButton())
-                {
-                    Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
-                    if (vibrationIsAvailable) Vibration.VibratePop();
-                    if (hit.collider != null && _dropBubble != null)
-                    {
-                        _dropBubbleSystem.DropBubble(ref _dropBubble, _dropBubbleRb); 
-                    }
-                }
-            }
+            _mouseMovementSystem.MouseDrag(_dropBubble.transform, offset, extents, leftBorder, rightBorder); // Cập nhật vị trí bubble theo chuột
         }
-
         if (!_boosterIsOn) return;
         if (Input.GetMouseButtonDown(0))
         {
-            if(_boosterType == 0 || _boosterType == 1)
+            if (_boosterType == 0 || _boosterType == 1)
             {
                 Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, clickableLayer);
@@ -631,7 +635,27 @@ public class GameSceneController : MonoBehaviour, IController
                     mousePos = mousePosition,
                 });
             }
-            
+        }
+    }
+
+    private void Update()
+    {
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (_dropBubble != null || !_boosterIsOn)
+            {
+                if (!IsPointerOverButton() && _isDragging)
+                {
+                    Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
+                    if (vibrationIsAvailable) Vibration.VibratePop();
+                    if (hit.collider != null && _dropBubble != null)
+                    {
+                        _isDragging = false;
+                        _dropBubbleSystem.DropBubble(ref _dropBubble, _dropBubbleRb);
+                    }
+                }
+            }
         }
     }
 

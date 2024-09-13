@@ -110,7 +110,7 @@ public class JellyController : MonoBehaviour, IController
     public void DisConnectToBubble()
     {
         _joint.enabled = false;
-        transform.SetParent(null);
+        transform.SetParent(GameObject.FindGameObjectWithTag("Level").transform);
     }
 
     IArchitecture IBelongToArchitecture.GetArchitecture()

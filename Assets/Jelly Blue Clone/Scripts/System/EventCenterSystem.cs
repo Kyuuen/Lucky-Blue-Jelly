@@ -17,7 +17,7 @@ public interface IEventCenterSystem : ISystem
     public void SendHammerAniEvent(Transform bubble, int iD);
     public void SendStrawberryAniEvent(int iD);
     public void SendFirecrackerAniEvent(Vector2 mousePos);
-
+    public void SendRandomLevelEvent(int levelIndex);
     public void SendInactivateEvent();
 }
 
@@ -109,6 +109,13 @@ public class EventCenterSystem : AbstractSystem, IEventCenterSystem
         });
     }
 
+    public void SendRandomLevelEvent(int levelIndex)
+    {
+        this.SendEvent(new RandomLevelEvent
+        {
+            _levelIndex = levelIndex
+        });
+    }
     public void SendInactivateEvent()
     {
         this.SendEvent<BoosterInactivateEvent>();
