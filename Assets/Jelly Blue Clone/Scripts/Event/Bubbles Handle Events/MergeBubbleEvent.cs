@@ -9,6 +9,7 @@ public class MergeBubbleEvent
     public int mergeId;
     public int breakId;
     public int moveAmount;
+    public bool moveBack;
     public int colorType;
     public bool isFull;
     public List<int> colorTypes;

@@ -35,7 +35,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
     [HideInInspector] public bool isDone;
 
     [HideInInspector] public bool _firstHit = false;
-    private bool _spawnEarly;
+    [HideInInspector] public bool _spawnEarly;
     private bool _gameIsEnd;
     [HideInInspector] public Rigidbody2D _rb;
 
@@ -81,7 +81,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
         {
             this.RegisterEvent<FirecrackerDestroyEvent>(e =>
             {
-            if (e._bubbleIds != null && !_isLocked)
+                if (e._bubbleIds != null && !_isLocked)
                 {
                     foreach (var id in e._bubbleIds)
                     {
@@ -108,19 +108,19 @@ public class BubbleController : MonoBehaviour, IBubbleController
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (_gameIsEnd) return;
+        if (_gameIsEnd || isDone) return;
         if (collision.gameObject.layer == 3 && !_isLocked && !collision.gameObject.GetComponent<BubbleController>()._isLocked)
         {
             _mergeBubbleSystem.GetBubbleContact(iD, collision.gameObject.GetComponent<BubbleController>().iD);
         }
         if (!_firstHit)
         {
-            if(!collision.gameObject.CompareTag("Bubble") && !collision.gameObject.CompareTag("Map") && !collision.gameObject.CompareTag("LevelObstacle"))
+            if (!collision.gameObject.CompareTag("Bubble") && !collision.gameObject.CompareTag("Map") && !collision.gameObject.CompareTag("LevelObstacle"))
             {
                 return;
             }
         }
-        
+
     }
 
     public void IsSpawnEarly()
@@ -141,12 +141,12 @@ public class BubbleController : MonoBehaviour, IBubbleController
     {
         foreach (var jelly in jellies)
         {
-            if(jelly != null)
+            if (jelly != null)
             {
                 jelly.GetComponent<JellyController>().DisConnectToBubble();
                 jelly.GetComponent<Rigidbody2D>().drag = 100f;
             }
-            
+
         }
     }
 
@@ -197,10 +197,18 @@ public class BubbleController : MonoBehaviour, IBubbleController
         if (isNotDropped)
         {
             gameObject.layer = 10;
+            foreach (GameObject jelly in jellies)
+            {
+                jelly.layer = 11;
+            }
         }
         else
         {
             gameObject.layer = 3;
+            foreach (GameObject jelly in jellies)
+            {
+                jelly.layer = 0;
+            }
         }
     }
 
@@ -251,9 +259,9 @@ public class BubbleController : MonoBehaviour, IBubbleController
 
     public void PrevDone(int maxNumb)
     {
-        if(maxNumb < jellies.Count)
+        if (maxNumb < jellies.Count)
         {
-            for(int i = maxNumb; i< jellies.Count; i++)
+            for (int i = maxNumb; i < jellies.Count; i++)
             {
                 Destroy(jellies[i]);
             }
@@ -263,7 +271,7 @@ public class BubbleController : MonoBehaviour, IBubbleController
     public async void IsDone()
     {
         isDone = true;
-        _animator.SetBool("isCracked", true);
+        if (_animator != null) _animator.SetBool("isCracked", true);
         if (_rb != null)
         {
             _rb.gravityScale = 0;
@@ -277,14 +285,14 @@ public class BubbleController : MonoBehaviour, IBubbleController
         await UniTask.Delay(500);
         AudioManager.Instance.PlayBubbleSound(3);
 
-        
+
         DisConnectToBubble();
         //GetComponent<SpriteRenderer>().enabled = false;
 
         foreach (var jelly in jellies)
         {
             if (jelly != null)
-            jelly.GetComponent<JellyController>().OnBeingCollected();
+                jelly.GetComponent<JellyController>().OnBeingCollected();
         }
 
         jellies.Clear();

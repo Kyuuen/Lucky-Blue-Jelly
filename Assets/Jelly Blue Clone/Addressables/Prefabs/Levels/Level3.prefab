@@ -97,7 +97,6 @@ MonoBehaviour:
   _bubbles: []
   _dropSpot: {fileID: 7629277238222575529}
   _spawnSpot: {fileID: 3094666536147647417}
-  jellyMoveDuration: 0.25
   _cloudUI: {fileID: 5489749892494627978, guid: a4f20ca805bea0e43b4d33b748ae95b8, type: 3}
   _confettiUI: {fileID: 3908969887377661135, guid: 29b1c65e5dadf7845a6f0264e365ac8e, type: 3}
   _iceObject: {fileID: 6291114951865836053, guid: 627b7ddfcf207a84292feca8f617580a, type: 3}
@@ -808,7 +807,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.45664227}
+  m_Offset: {x: -0.58919287, y: 0.07212067}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -819,5 +818,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 3.29, y: 2.8967154}
+  m_Size: {x: 4.468386, y: 3.9542413}
   m_EdgeRadius: 0

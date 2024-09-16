@@ -1,4 +1,4 @@
- using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using QFramework;
@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 
 public class GameLevelSpawner : MonoBehaviour, IController
 {
-    [SerializeField] private int testLevel; 
+    //[SerializeField] private int testLevel;
     private GameObject _currentLevel;
     private int _currentLevelIndex;
 
@@ -17,15 +17,11 @@ public class GameLevelSpawner : MonoBehaviour, IController
     private IPlayerPrefModel _prefModel;
     private IGameSceneModel _gameSceneModel;
 
-    async void Awake()
+    void Awake()
     {
         _prefModel = this.GetModel<IPlayerPrefModel>();
         _gameSceneModel = this.GetModel<IGameSceneModel>();
 
-        //_prefModel.Reset();
-        //_prefModel.SetToTest(testLevel);
-        //_prefModel.ResetBooster();
-        
         this.RegisterEvent<PreGameStartEvent>(async e =>
         {
             _currentLevel = await GetCurrentLevel();
@@ -55,12 +51,12 @@ public class GameLevelSpawner : MonoBehaviour, IController
             Destroy(_currentInstanceLevel);
             _gameSceneModel.ResetModel();
         });
-        
+
     }
 
     void LoadNewLevel(int currentLevel) //need event preference
-    {   
-        if(currentLevel <= 20)
+    {
+        if (currentLevel <= 20)
         {
             _currentLevelIndex = currentLevel;
         }

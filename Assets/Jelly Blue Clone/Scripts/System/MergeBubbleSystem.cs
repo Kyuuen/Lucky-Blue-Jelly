@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using QFramework;
 using Unity.VisualScripting;
-using System.Drawing;
-using Newtonsoft.Json;
 using Cysharp.Threading.Tasks;
+using System.Linq;
 
 public interface IMergeBubbleSystem : ISystem
 {
@@ -142,8 +140,7 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
 
     UniTask SendEventType3(int id, int otherId, int color)
     {
-        bool isFull = false;
-        int moveAmount = TradeJellyWithOneSameColor(info, otherInfo, color, ref isFull).ConvertTo<int>();
+        bool moveBack = TradeJellyWithOneSameColor(info, otherInfo, color).ConvertTo<bool>();
 
         this.SendEvent(new MergeBubbleEvent()
         {
@@ -151,16 +148,16 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
             mergeId = id,
             breakId = otherId,
             colorType = color,
-            moveAmount = moveAmount,
-            isFull = isFull
+            moveBack = moveBack
         });
         IsDone(id, info);
+        IsDone(otherId, otherInfo);
         return UniTask.CompletedTask;
     }
 
     UniTask SendEventType4(int id, int otherId, List<int> sameColorTypes)
     {
-        int moveAmount = TradeJellyWithTwoSameColor(info, otherInfo, sameColorTypes);
+        bool moveBack = TradeJellyWithTwoSameColor(info, otherInfo, sameColorTypes);
 
         this.SendEvent(new MergeBubbleEvent()
         {
@@ -168,7 +165,7 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
             mergeId = id,
             breakId = otherId,
             colorTypes = sameColorTypes,
-            moveAmount = moveAmount
+            moveBack = moveBack
         });
         IsDone(id, info);
         IsDone(otherId, otherInfo);
@@ -196,123 +193,127 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
         beingTaken.jellyColor.RemoveAll(jelly => jelly == color);
     }
 
-    int TradeJellyWithOneSameColor(BubbleInfo take, BubbleInfo beingTaken, int color, ref bool isFull)
+    bool TradeJellyWithOneSameColor(BubbleInfo take, BubbleInfo beingTaken, int sameColor)
     {
-        //Debug.Log("Before: " + JsonConvert.SerializeObject(take.jellyColor));
-        //Debug.Log("Before: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
-        bool beingTakenFull = false;
-        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
-        {
-            //Debug.Log("Reach max");
-            beingTakenFull = true;
-            isFull = beingTakenFull;
-            return 0;
-        }
-
+        bool moveBack = false;
         List<int> tempColors = new List<int>();
+
+        // Chuyển các màu `sameColor` từ beingTaken sang take
         foreach (int jelly in beingTaken.jellyColor)
         {
-            if (jelly == color)
+            if (jelly == sameColor)
             {
                 tempColors.Add(jelly);
             }
         }
-        
-        //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
-        foreach (int jelly in tempColors)
-        {
-            take.jellyColor.Add(jelly);
-            beingTaken.jellyColor.Remove(jelly);
-        }
-        tempColors.Clear();
-        int movedCount = 0; //Increase everytime a jelly is moved
-        foreach (int jelly in take.jellyColor)
-        {
-            if (jelly != color)
-            {
-                tempColors.Add(jelly);
-            }
-        }
-        //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
-        foreach (int jelly in tempColors)
-        {
-            if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
-            {
-                //Debug.Log("Reach max");
-                beingTakenFull = true;
-                break;
-            }
-            beingTaken.jellyColor.Add(jelly);
-            movedCount++;
-            take.jellyColor.Remove(jelly);
-        }
-        isFull = beingTakenFull;
 
-        // Nếu take vẫn còn chứa màu trùng sau khi trao đổi, dừng việc tiếp tục
-        if (take.jellyColor.Contains(color) && beingTakenFull)
-        {
-            Debug.Log("Không thể hoàn thành trao đổi do beingTaken đã đầy.");
-            return 0; // Dừng trao đổi để tránh lặp lại
-        }
-        //Debug.Log("After: " + JsonConvert.SerializeObject(take.jellyColor));
-        //Debug.Log("After: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
-        return movedCount;
-    }
-
-    int TradeJellyWithTwoSameColor(BubbleInfo take, BubbleInfo beingTaken, List<int> sameColor)
-    {
-        //Debug.Log("Before: " + JsonConvert.SerializeObject(take.jellyColor));
-        //Debug.Log("Before: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
-        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
-        {
-            return 0;
-        }
-
-        int movedCount = 0;
-        List<int> tempColors = new List<int>();
-        foreach (int jelly in beingTaken.jellyColor)
-        {
-            if (jelly == sameColor[0])
-            {
-                tempColors.Add(jelly);
-            }
-        }
-        //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
+        // Loại bỏ màu sameColor khỏi beingTaken và thêm vào take
         foreach (var jelly in tempColors)
         {
             take.jellyColor.Add(jelly);
             beingTaken.jellyColor.Remove(jelly);
         }
+
         tempColors.Clear();
+
+        // Chuyển các màu khác từ take sang beingTaken
         foreach (int jelly in take.jellyColor)
         {
-            if (jelly == sameColor[1])
+            if (jelly != sameColor)
             {
                 tempColors.Add(jelly);
             }
         }
-        //Debug.Log("Temp list: " + JsonConvert.SerializeObject(tempColors));
-        foreach (int jelly in tempColors)
+
+        foreach (var jelly in tempColors)
         {
-            if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
-            {
-                Debug.Log("beingTaken is at max number");
-                break;
-            }
             take.jellyColor.Remove(jelly);
             beingTaken.jellyColor.Add(jelly);
-            movedCount++;
+
         }
 
-        if (movedCount == 0)
+        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
         {
-            Debug.Log("Không thể trao đổi màu thêm nữa");
-            return 0; // Không trao đổi được màu nào, thoát khỏi hàm
+            Debug.Log("Reach max");
+            int priorityColor = tempColors[^1];
+            tempColors.Clear();
+            moveBack = true;
+            foreach (int jelly in beingTaken.jellyColor)
+            {
+                if (jelly != priorityColor)
+                {
+                    tempColors.Add(jelly);
+                }
+            }
+            foreach (var jelly in tempColors)
+            {
+                beingTaken.jellyColor.Remove(jelly);
+                take.jellyColor.Add(jelly);
+            }
         }
 
-        //Debug.Log("After: " + JsonConvert.SerializeObject(take.jellyColor));
-        //Debug.Log("After: " + JsonConvert.SerializeObject(beingTaken.jellyColor));
-        return movedCount;
+        return moveBack;
+    }
+
+    bool TradeJellyWithTwoSameColor(BubbleInfo take, BubbleInfo beingTaken, List<int> colors)
+    {
+        bool moveBack = false;
+        List<int> tempColors = new List<int>();
+
+        // Chuyển các màu `firstColor` và `secondColor` từ beingTaken sang take
+        foreach (int jelly in beingTaken.jellyColor)
+        {
+            if (jelly == colors[0])
+            {
+                tempColors.Add(jelly);
+            }
+        }
+
+        // Loại bỏ màu firstColor và secondColor khỏi beingTaken và thêm vào take
+        foreach (var jelly in tempColors)
+        {
+            take.jellyColor.Add(jelly);
+            beingTaken.jellyColor.Remove(jelly);
+        }
+
+        tempColors.Clear();
+
+        // Chuyển các màu khác từ take sang beingTaken
+        foreach (int jelly in take.jellyColor)
+        {
+            if (jelly == colors[1])
+            {
+                tempColors.Add(jelly);
+            }
+        }
+
+        foreach (var jelly in tempColors)
+        {
+            take.jellyColor.Remove(jelly);
+            beingTaken.jellyColor.Add(jelly);
+
+        }
+
+        if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
+        {
+            int priorityColor = tempColors[^1];
+            tempColors.Clear();
+            moveBack = true;
+            foreach (int jelly in beingTaken.jellyColor)
+            {
+                if (jelly != priorityColor)
+                {
+                    tempColors.Add(jelly);
+                }
+            }
+            foreach (var jelly in tempColors)
+            {
+                beingTaken.jellyColor.Remove(jelly);
+                take.jellyColor.Add(jelly);
+            }
+        }
+
+        return moveBack;
     }
 
     int CountAmountOfColor(List<int> list, int color)

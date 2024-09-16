@@ -24,7 +24,7 @@ MonoBehaviour:
   - pos: {x: 0.3, y: -1.5}
     size: 0
     numb: 2
-    numColor: 2
+    numColor: 1
     colorRate: 1
   - pos: {x: 3, y: 0}
     size: 1

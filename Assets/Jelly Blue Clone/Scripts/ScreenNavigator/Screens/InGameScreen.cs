@@ -97,8 +97,15 @@ public class InGameScreen : ZBase.UnityScreenNavigator.Core.Screens.Screen, ICon
 
     async UniTaskVoid GameOver()
     {
+        var modalContainer = string.IsNullOrEmpty(ContainerKey.Modals)
+                ? ModalContainer.Of(transform)
+                : ModalContainer.Find(ContainerKey.Modals);
+        modalContainer.Pop(false);
+        this.SendCommand(new BoosterInactivateCommand
+        {
+            _isPopupOn = true
+        });
         var option = new ViewOptions(ResourceKeys.LevelFailPrefab(), true);
-        await UniTask.WaitForSeconds(1);
         await ModalContainer.Find(ContainerKey.Modals).PushAsync(option);
     }
 

@@ -17,19 +17,16 @@ using UnityEngine.UI;
 public class GameSceneController : MonoBehaviour, IController
 {
     [SerializeField] private LevelObjectSpawner _thisLevel;
-
     [SerializeField] private List<GameObject> _bubbles;
-
     [SerializeField] private Transform _dropSpot;
     [SerializeField] private Transform _spawnSpot;
 
-    [SerializeField] private float jellyMoveDuration;
-
     [SerializeField] private GameObject _cloudUI;
-    private GameObject _coinUI;
     [SerializeField] private GameObject _confettiUI;
     [SerializeField] private GameObject _iceObject;
+    private float jellyMoveDuration = 0.15f;
 
+    private GameObject _coinUI;
     private GameObject _spawnBubble;
     private GameObject _dropBubble;
     private GameObject _bubbleToSpawn;
@@ -41,6 +38,7 @@ public class GameSceneController : MonoBehaviour, IController
     private Rigidbody2D _dropBubbleRb;
     private Rigidbody2D _spawnBubbleRb;
 
+    private float _dropDelay;
     private int _boosterType;
     private bool _boosterIsOn;
     [SerializeField] private LayerMask clickableLayer;
@@ -54,8 +52,8 @@ public class GameSceneController : MonoBehaviour, IController
 
     [SerializeField] private List<GameObject> _bubbleSizePrefabs = new List<GameObject>();
     [SerializeField] private List<GameObject> _jellyPrefabs = new List<GameObject>();
-    private BubbleInfo _bubbleInfo;
 
+    private BubbleInfo _bubbleInfo;
     private int _bubbleIds;
     private int _iceIds;
     private float _radiusReduceAmount = 0.015f;
@@ -75,7 +73,6 @@ public class GameSceneController : MonoBehaviour, IController
     private IGameSceneModel _gameSceneModel;
     private IPlayerPrefModel _playerPrefModel;
 
-
     private void Awake()
     {
         _mouseMovementSystem = this.GetSystem<IMouseMovementSystem>();
@@ -91,6 +88,7 @@ public class GameSceneController : MonoBehaviour, IController
         _gameIsEnd = false;
         _boosterIsOn = false;
         _isDragging = false;
+        _dropDelay = 0;
         vibrationIsAvailable = _playerPrefModel.VibrateAvailable.Value;
 
         this.RegisterEvent<OnGameStartEvent>(OnGameStart).UnRegisterWhenGameObjectDestroyed(gameObject.transform.parent.gameObject);
@@ -168,10 +166,11 @@ public class GameSceneController : MonoBehaviour, IController
 
     void DroppedBubble(DroppedBubbleEvent e)
     {
-        if(_gameIsEnd) return;
+        if (_gameIsEnd) return;
         _dropBubbleSystem.DrawToSpawnBubble(ref _dropBubble, _spawnBubble, _dropSpot);
         SpawnNewBubbleAtSpawn();
         _dropBubbleSystem.PostSpawnNewBubble(_dropBubble, _spawnBubble, ref _dropBubbleRb, ref _spawnBubbleRb);
+        _dropDelay = 0.5f;
     }
 
     void SpawnNewBubbleAtSpawn()
@@ -180,7 +179,7 @@ public class GameSceneController : MonoBehaviour, IController
         _bubbleInfo = _gameSceneModel.Bubbles[_bubbleIds];
         _spawnBubble = GetBubbleToSpawn(_spawnSpot.position);
         _spawnBubble.GetComponent<BubbleController>().ChangeMask(true);
-        
+
         _bubbles.Add(_spawnBubble);
         _bubbleIds++;
     }
@@ -210,7 +209,7 @@ public class GameSceneController : MonoBehaviour, IController
             case 1:
                 {
                     _boosterType = e._boosterStatus;
-                    foreach(int i in e._bubbleIDs)
+                    foreach (int i in e._bubbleIDs)
                     {
                         if (_bubbles[i] != null)
                         {
@@ -248,10 +247,10 @@ public class GameSceneController : MonoBehaviour, IController
     async void StrawberryBreak(StrawberryBreakEvent e)
     {
         await UniTask.Delay(2000);
-        foreach(int id in e._iDs)
+        foreach (int id in e._iDs)
         {
             if (_bubbles[id] != null)
-            _bubbles[id].GetComponent<BubbleController>().IsDone();
+                _bubbles[id].GetComponent<BubbleController>().IsDone();
         }
     }
 
@@ -265,18 +264,21 @@ public class GameSceneController : MonoBehaviour, IController
     void OnLevelWin(OnLevelWinEvent e)
     {
         _gameIsEnd = true;
+        //Destroy(_bubbles[_bubbleIds]);
+        //Destroy(_bubbles[_bubbleIds - 1]);
         goldPos = _uiSystem.ConVertUIToWorld(_uiSystem.GoldUIPos);
         UniTask.Create(async () =>
         {
             await UniTask.Delay(2000);
-            Instantiate(_confettiUI, new Vector3(0, -1.5f, 100), Quaternion.identity);
+            GameObject newConfetti = Instantiate(_confettiUI, new Vector3(0, -1.5f, 100), Quaternion.identity);
+            Destroy(newConfetti, 5);
         });
         Invoke(nameof(CalculateScore), 5f);
     }
     async void CalculateScore()
     {
         List<int> idBubblesLeft = new List<int>();
-        for (int i = 0; i < _bubbles.Count - 2; i++)
+        for (int i = 0; i < _bubbleIds - 2; i++)
         {
             if (_bubbles[i] != null)
             {
@@ -291,7 +293,7 @@ public class GameSceneController : MonoBehaviour, IController
             idBubblesLeft = idBubblesLeft
         });
     }
-    
+
     async void SpawnRayToGold(GameObject bubble)
     {
         GameObject newObject = Instantiate(_cloudUI, goldPos, Quaternion.identity);
@@ -315,7 +317,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     void GameOver(GameOverEvent e)
     {
-        
+
     }
 
     GameObject GetBubbleToSpawn(Vector2 spot)
@@ -359,7 +361,7 @@ public class GameSceneController : MonoBehaviour, IController
     private void SpawnJellies(GameObject newBubble, Vector2 spot, Rigidbody2D bubbleRigidbody)
     {
         BubbleController _bubbleController = newBubble.GetComponent<BubbleController>();
-        Vector2 spawnOffset = new Vector2(0.01f,0.01f);
+        Vector2 spawnOffset = new Vector2(0.01f, 0.01f);
         foreach (int type in _bubbleInfo.jellyColor)
         {
             GameObject _jellyToSpawn = _spawnJellySystem.GetJellyToSpawn(type, _jellyPrefabs);
@@ -378,7 +380,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     public void SpawnIce()
     {
-        foreach(var destination in _thisLevel.icePos)
+        foreach (var destination in _thisLevel.icePos)
         {
             GameObject newIce = Instantiate(_iceObject, destination, Quaternion.identity);
             newIce.transform.SetParent(this.transform);
@@ -400,11 +402,11 @@ public class GameSceneController : MonoBehaviour, IController
         }
         else if (e.mergeStatus == 3)
         {
-            TradeBubble(e.mergeId, e.breakId, e.colorType, e.moveAmount);
+            TradeBubble(e.mergeId, e.breakId, e.colorType, e.moveBack);
         }
         else if (e.mergeStatus == 4)
         {
-            TradeMultyColorsBubble(e.mergeId, e.breakId, e.colorTypes, e.moveAmount);
+            TradeBubbleWithTwoSameColor(e.mergeId, e.breakId, e.colorTypes, e.moveBack);
         }
     }
 
@@ -420,7 +422,7 @@ public class GameSceneController : MonoBehaviour, IController
             _mergeBubble.jellies.Add(jelly);
         }
 
-        foreach(var jelly in _mergeBubble.jellies)
+        foreach (var jelly in _mergeBubble.jellies)
         {
             jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
         }
@@ -457,59 +459,75 @@ public class GameSceneController : MonoBehaviour, IController
 
     }
 
-    void TradeBubble(int mergeId, int breakId, int colorType, int moveAmount)
+    void TradeBubble(int mergeId, int breakId, int colorType, bool moveBack)
     {
+        // Lấy thông tin các bubble từ mergeId và breakId
         _mergeBubble = _bubbles[mergeId].GetComponent<BubbleController>();
         _breakBubble = _bubbles[breakId].GetComponent<BubbleController>();
-        List<GameObject> jellies = new List<GameObject>();
+        List<GameObject> temp = new List<GameObject>();
 
+        // Ngắt kết nối các jelly màu tương ứng từ breakBubble
         _breakBubble.DisConnectToType(colorType, true);
         _mergeBubble.DisConnectToType(colorType, false);
-        // Di chuyển jelly có màu tương ứng từ breakBubble sang mergeBubble
+
+        // Tìm các jelly có màu tương ứng (colorType) từ breakBubble để di chuyển sang mergeBubble
         foreach (var jelly in _breakBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorType)
             {
-                if (_mergeBubble.jellies.Count < _mergeBubble.maxNumb)  // Chỉ di chuyển nếu chưa đạt giới hạn
-                {
-                    jellies.Add(jelly);
-                }
-                else
-                {
-                    break;  // Dừng khi mergeBubble đầy
-                }
+                temp.Add(jelly);
             }
         }
 
-        foreach (var jelly in jellies)
+        // Di chuyển các jelly có màu tương ứng sang mergeBubble
+        foreach (var jelly in temp)
         {
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_mergeBubble.gameObject, jellyMoveDuration);
             _mergeBubble.jellies.Add(jelly);
             _breakBubble.jellies.Remove(jelly);
         }
 
-        jellies.Clear();
+        // Xóa danh sách jellies sau khi đã di chuyển
+        temp.Clear();
 
-        // Di chuyển các màu khác từ mergeBubble sang breakBubble với giới hạn moveAmount
-        int count = moveAmount;
+        // Tìm các jelly có màu khác từ mergeBubble để di chuyển ngược lại sang breakBubble
         foreach (var jelly in _mergeBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type != colorType)
             {
-                jellies.Add(jelly);
-                count--;
-                if (count == 0) break;  // Dừng khi đạt giới hạn moveAmount
+                temp.Add(jelly);
             }
         }
 
-        foreach (var jelly in jellies)
+        // Di chuyển các jelly có màu khác về breakBubble
+        foreach (var jelly in temp)
         {
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_breakBubble.gameObject, jellyMoveDuration);
             _breakBubble.jellies.Add(jelly);
             _mergeBubble.jellies.Remove(jelly);
         }
 
-        // Cập nhật collider sau khi di chuyển
+        if (moveBack)
+        {
+            int priorityColor = temp[^1].GetComponent<JellyController>().Type;
+            Debug.Log($"{priorityColor}");
+            temp.Clear();
+            foreach (var jelly in _breakBubble.jellies)
+            {
+                if (jelly.GetComponent<JellyController>().Type != priorityColor)
+                {
+                    temp.Add(jelly);
+                }
+            }
+            foreach (var jelly in temp)
+            {
+                jelly.GetComponent<JellyController>().PlayMoveAnimate(_mergeBubble.gameObject, jellyMoveDuration);
+                _mergeBubble.jellies.Add(jelly);
+                _breakBubble.jellies.Remove(jelly);
+            }
+        }
+
+        // Cập nhật collider sau khi hoàn tất di chuyển các jelly
         foreach (var jelly in _mergeBubble.jellies)
         {
             jelly.GetComponent<JellyController>().ReduceColliderRadius(_radiusReduceAmount * _mergeBubble.jellies.Count);
@@ -521,57 +539,70 @@ public class GameSceneController : MonoBehaviour, IController
         }
     }
 
-    void TradeMultyColorsBubble(int mergeId, int breakId, List<int> colorTypes, int moveAmount)
+    void TradeBubbleWithTwoSameColor(int mergeId, int breakId, List<int> colorTypes, bool moveBack)
     {
+        // Lấy thông tin các bubble từ mergeId và breakId
         _mergeBubble = _bubbles[mergeId].GetComponent<BubbleController>();
         _breakBubble = _bubbles[breakId].GetComponent<BubbleController>();
 
-        List<GameObject> jellies = new List<GameObject>();
-        _mergeBubble.DisConnectToType(colorTypes[1], true);
-        _breakBubble.DisConnectToType(colorTypes[0], true);
+        List<GameObject> tempColor = new List<GameObject>();
 
-        // Di chuyển jelly có màu colorTypes[0] từ breakBubble sang mergeBubble
+        // Ngắt kết nối các jelly màu firstColorType từ breakBubble và secondColorType từ mergeBubble
+        _breakBubble.DisConnectToType(colorTypes[0], true);
+        _mergeBubble.DisConnectToType(colorTypes[1], true);
+
+        // Di chuyển jelly có màu firstColorType từ breakBubble sang mergeBubble
         foreach (var jelly in _breakBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorTypes[0])
             {
-                if (_mergeBubble.jellies.Count < _mergeBubble.maxNumb)  // Dừng khi mergeBubble đầy
-                {
-                    jellies.Add(jelly);
-                }
-                else
-                {
-                    break;
-                }
+                tempColor.Add(jelly);
             }
         }
 
-        foreach (var jelly in jellies)
+        foreach (var jelly in tempColor)
         {
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_mergeBubble.gameObject, jellyMoveDuration);
             _mergeBubble.jellies.Add(jelly);
             _breakBubble.jellies.Remove(jelly);
         }
 
-        jellies.Clear();
+        // Xóa danh sách jellies sau khi đã di chuyển từ breakBubble
+        tempColor.Clear();
 
-        int count = moveAmount;
-        // Di chuyển jelly có màu colorTypes[1] từ mergeBubble sang breakBubble
         foreach (var jelly in _mergeBubble.jellies)
         {
             if (jelly.GetComponent<JellyController>().Type == colorTypes[1])
             {
-                jellies.Add(jelly);
-                count--;
-                if (count == 0) break;  // Dừng khi đạt giới hạn moveAmount
+                tempColor.Add(jelly);
             }
         }
 
-        foreach (var jelly in jellies)
+        // Di chuyển jelly có màu secondColorType từ mergeBubble sang breakBubble
+        foreach (var jelly in tempColor)
         {
             jelly.GetComponent<JellyController>().PlayMoveAnimate(_breakBubble.gameObject, jellyMoveDuration);
             _breakBubble.jellies.Add(jelly);
             _mergeBubble.jellies.Remove(jelly);
+        }
+
+        if (moveBack)
+        {
+            int priorityColor = tempColor[^1].GetComponent<JellyController>().Type;
+            tempColor.Clear();
+            foreach (var jelly in _breakBubble.jellies)
+            {
+                if (jelly.GetComponent<JellyController>().Type != priorityColor)
+                {
+                    tempColor.Add(jelly);
+                }
+            }
+            foreach (var jelly in tempColor)
+            {
+                jelly.GetComponent<JellyController>().PlayMoveAnimate(_mergeBubble.gameObject, jellyMoveDuration);
+                _mergeBubble.jellies.Add(jelly);
+                _breakBubble.jellies.Remove(jelly);
+            }
         }
 
         // Cập nhật collider sau khi di chuyển
@@ -592,8 +623,9 @@ public class GameSceneController : MonoBehaviour, IController
         _bubbles[e.id].GetComponent<BubbleController>().IsDone();
     }
 
-    void FixedUpdate()
+    private void Update()
     {
+        _dropDelay -= Time.deltaTime;
         if (Input.GetMouseButtonDown(0))
         {
             if (_dropBubble != null || !_boosterIsOn || !_gameSceneModel.IsDropping)
@@ -602,7 +634,7 @@ public class GameSceneController : MonoBehaviour, IController
                 {
                     Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
-                    if (hit.collider != null && _dropBubble != null)
+                    if (hit.collider != null && _dropBubble != null && _dropDelay <= 0)
                     {
                         _isDragging = true;
                         _mouseMovementSystem.MouseClick(_dropBubble.transform, offset, extents, leftBorder, rightBorder);
@@ -610,6 +642,25 @@ public class GameSceneController : MonoBehaviour, IController
                 }
             }
         }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            if (_dropBubble != null || !_boosterIsOn)
+            {
+                if (!IsPointerOverButton() && _isDragging)
+                {
+                    Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                    RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
+                    if (vibrationIsAvailable) Vibration.VibratePop();
+                    if (hit.collider != null && _dropBubble != null && _dropDelay <= 0)
+                    {
+                        _isDragging = false;
+                        _dropBubbleSystem.DropBubble(ref _dropBubble, _dropBubbleRb);
+                    }
+                }
+            }
+        }
+
         if (_isDragging)
         {
             _mouseMovementSystem.MouseDrag(_dropBubble.transform, offset, extents, leftBorder, rightBorder); // Cập nhật vị trí bubble theo chuột
@@ -636,27 +687,7 @@ public class GameSceneController : MonoBehaviour, IController
                 });
             }
         }
-    }
 
-    private void Update()
-    {
-        if (Input.GetMouseButtonUp(0))
-        {
-            if (_dropBubble != null || !_boosterIsOn)
-            {
-                if (!IsPointerOverButton() && _isDragging)
-                {
-                    Vector2 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    RaycastHit2D hit = Physics2D.Raycast(mousePosition, Vector2.zero, Mathf.Infinity, mapLayer);
-                    if (vibrationIsAvailable) Vibration.VibratePop();
-                    if (hit.collider != null && _dropBubble != null)
-                    {
-                        _isDragging = false;
-                        _dropBubbleSystem.DropBubble(ref _dropBubble, _dropBubbleRb);
-                    }
-                }
-            }
-        }
     }
 
     public bool IsPointerOverButton()
@@ -684,7 +715,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     void OnDestroy()
     {
-        foreach(var bubble in _bubbles)
+        foreach (var bubble in _bubbles)
         {
             Destroy(bubble);
         }

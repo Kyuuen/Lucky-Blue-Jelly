@@ -14,7 +14,7 @@ public class HammerAnimation : MonoBehaviour, IController
         _scoreSystem = this.GetSystem<IScoreSystem>();
     }
 
-    public async void PlayAnimation(Transform bubble, int iD)
+    public void PlayAnimation(Transform bubble, int iD)
     {
         gameObject.GetComponent<Rigidbody2D>().DOMove(bubble.position + offset, 0.5f).OnComplete(async () =>
         {

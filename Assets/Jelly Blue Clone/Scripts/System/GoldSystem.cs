@@ -12,7 +12,7 @@ public interface IGoldSystem : ISystem
 
 public class GoldSystem : AbstractSystem, IGoldSystem
 {
-    private List<int> goldPerSize = new List<int> { 1, 2, 3, 4 };
+    private List<int> goldPerSize = new List<int> { 5, 10, 15, 20 };
 
     private IGameSceneModel gameSceneModel;
     private IPlayerPrefModel prefModel;
@@ -33,7 +33,7 @@ public class GoldSystem : AbstractSystem, IGoldSystem
 
     public void GetExtraGold(int multiply)
     {
-        prefModel.Gold.Value += 5 * multiply;
+        prefModel.Gold.Value += 50 * multiply;
     }
 
     

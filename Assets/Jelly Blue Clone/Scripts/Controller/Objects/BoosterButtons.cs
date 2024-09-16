@@ -18,6 +18,7 @@ public class BoosterButtons : MonoBehaviour, IController
     {
         _lockImg.SetActive(true);
         _unlockImg.SetActive(false);
+        _useText.text = string.Empty;
         GetComponent<Button>().interactable = false;
 
         _prefModel = this.GetModel<IPlayerPrefModel>();
@@ -50,7 +51,11 @@ public class BoosterButtons : MonoBehaviour, IController
 
     void OnUseChange(int use)
     {
-        if(use == 0 && _prefModel.CurrentLevel.Value < _unlockLevel) { return; }
+        if (use == 0 && _prefModel.CurrentLevel.Value < _unlockLevel)
+        {
+            _useText.text = string.Empty;
+            return;
+        }
         _useText.text = use.ToString();
     }
 
@@ -62,7 +67,7 @@ public class BoosterButtons : MonoBehaviour, IController
             _unlockImg.SetActive(true);
             GetComponent<Button>().interactable = true;
         }
-        if(_prefModel.CurrentLevel.Value == _unlockLevel)
+        if (_prefModel.CurrentLevel.Value == _unlockLevel)
         {
             switch (_boosterType)
             {

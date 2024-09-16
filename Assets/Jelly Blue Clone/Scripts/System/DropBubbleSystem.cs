@@ -8,7 +8,7 @@ public interface IDropBubbleSystem : ISystem
 {
     public void DropBubble(ref GameObject bubble, Rigidbody2D bubbleRb);
     public void DrawToSpawnBubble(ref GameObject dropBubble, GameObject spawnBubble, Transform dropSpot);
-    public void PostSpawnNewBubble(GameObject dropBubble, GameObject spawnBubble,ref Rigidbody2D dropRb,ref Rigidbody2D spawnRb);
+    public void PostSpawnNewBubble(GameObject dropBubble, GameObject spawnBubble, ref Rigidbody2D dropRb, ref Rigidbody2D spawnRb);
     public GameObject SwitchBubble(ref GameObject dropBubble, ref GameObject spawnBubble, ref Rigidbody2D dropRb, ref Rigidbody2D spawnRb);
 
 }
@@ -28,8 +28,8 @@ public class DropBubbleSystem : AbstractSystem, IDropBubbleSystem
             gameStarted = true;
         });
         this.RegisterEvent<GameOverEvent>(e =>
-        { 
-            gameStarted = false; 
+        {
+            gameStarted = false;
         });
         this.RegisterEvent<OnLevelWinEvent>(e =>
         {
@@ -70,7 +70,7 @@ public class DropBubbleSystem : AbstractSystem, IDropBubbleSystem
         bubble.GetComponent<BubbleController>().ChangeMask(false);
         bubble = null;
         gameSceneModel.Move.Value--;
-        if(gameSceneModel.Move.Value <= 0)
+        if (gameSceneModel.Move.Value <= 0)
         {
             UniTask.Create(async () =>
             {
@@ -81,7 +81,7 @@ public class DropBubbleSystem : AbstractSystem, IDropBubbleSystem
         }
     }
 
-    public void PostSpawnNewBubble(GameObject dropBubble, GameObject spawnBubble,ref Rigidbody2D dropRb, ref Rigidbody2D spawnRb)
+    public void PostSpawnNewBubble(GameObject dropBubble, GameObject spawnBubble, ref Rigidbody2D dropRb, ref Rigidbody2D spawnRb)
     {
         if (!gameStarted) return;
         dropRb = dropBubble.GetComponent<Rigidbody2D>();

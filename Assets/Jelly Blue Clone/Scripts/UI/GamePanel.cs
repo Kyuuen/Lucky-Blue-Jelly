@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
+using System.Collections;
 
 public class GamePanel : MonoBehaviour, IController
 {
@@ -21,6 +22,7 @@ public class GamePanel : MonoBehaviour, IController
 
     private LevelObjectSpawner _thisLevel;
     private int _currentLevelIndex = 1;
+    private int _oldGoldvValue;
 
     [SerializeField] private GameObject _jellyUI;
 
@@ -38,6 +40,8 @@ public class GamePanel : MonoBehaviour, IController
 
         _scoreSystem = this.GetSystem<IScoreSystem>();
         _uiSystem = this.GetSystem<IUISystem>();
+
+        _oldGoldvValue = _prefModel.Gold.Value;
 
         if (_prefModel.CurrentLevel.Value <= 20)
         {
@@ -65,7 +69,7 @@ public class GamePanel : MonoBehaviour, IController
 
         this.RegisterEvent<OnJellyCollectEvent>(OnJellyCollect).UnRegisterWhenGameObjectDestroyed(gameObject);
         this.RegisterEvent<PostLevelWinEvent>(PostLevelWin).UnRegisterWhenGameObjectDestroyed(gameObject);
-        
+        this.RegisterEvent<OnGameStartEvent>(OnGameStart).UnRegisterWhenGameObjectDestroyed(gameObject);
 
         _thisLevel = await GetCurrentLevelConfig();
 
@@ -80,9 +84,9 @@ public class GamePanel : MonoBehaviour, IController
         OnMoveChanged(_gameSceneModel.Score.Value);
         OnGoldChanged(_prefModel.Gold.Value);
 
-        foreach(var button in _boosterBtns)
+        foreach (var button in _boosterBtns)
         {
-            button.onClick.RemoveAllListeners();;
+            button.onClick.RemoveAllListeners(); ;
         }
         _switchBtns.onClick.RemoveAllListeners();
 
@@ -112,12 +116,16 @@ public class GamePanel : MonoBehaviour, IController
     {
 
     }
-    
-    
+
+    void OnGameStart(OnGameStartEvent e)
+    {
+        OnGoldChanged(_prefModel.Gold.Value);
+    }
+
 
     void ActivateBooster(int status, int use)
     {
-        if(use <= 0)
+        if (use <= 0)
         {
             this.SendCommand(new BoosterPopupActivateCommand
             {
@@ -131,7 +139,7 @@ public class GamePanel : MonoBehaviour, IController
                 status = status
             });
         }
-        
+
     }
 
     void OnJellyCollect(OnJellyCollectEvent e)
@@ -156,7 +164,25 @@ public class GamePanel : MonoBehaviour, IController
     void OnGoldChanged(int gold)
     {
         //if (!beingInit) await UniTask.Delay(2000);
-        _gold.text = gold.ToString();
+        StartCoroutine(IncrementToTarget(_oldGoldvValue, gold, 2f));
+    }
+
+    IEnumerator IncrementToTarget(int startValue, int endValue, float time)
+    {
+        float elapsed = 0f;
+        int valueDifference = endValue - startValue;
+
+        while (elapsed < time)
+        {
+            elapsed += Time.deltaTime;
+            int newValue = Mathf.RoundToInt(Mathf.Lerp(startValue, endValue, elapsed / time));
+            _gold.text = newValue.ToString();
+            yield return null;  // Chờ tới frame tiếp theo
+        }
+
+        // Đảm bảo giá trị cuối cùng được cập nhật chính xác
+        _gold.text = endValue.ToString();
+        _oldGoldvValue = endValue;
     }
 
     void OnScoreChanged(int score)

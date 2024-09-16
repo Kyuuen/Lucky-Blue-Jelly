@@ -11,7 +11,6 @@ public class PreGameStartCommand : AbstractCommand, ICommand
     {
         _eventSystem = this.GetSystem<IEventCenterSystem>();
         _prefModel = this.GetModel<IPlayerPrefModel>();
-        //_prefModel.Reset();
         _eventSystem.SendPreGameStartEvent();
     }
 }
