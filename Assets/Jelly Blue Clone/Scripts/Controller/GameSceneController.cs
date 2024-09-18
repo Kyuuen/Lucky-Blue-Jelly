@@ -148,9 +148,10 @@ public class GameSceneController : MonoBehaviour, IController
 
     void PlayOn(PlayOnEvent e)
     {
+        _gameIsEnd = false;
         UniTask.Create(async () =>
         {
-            await UniTask.Delay(500);
+            await UniTask.WaitForSeconds(0.3f);
             int deletedCount = 0;
             for (int i = _bubbles.Count - 3; i >= 0; i--)
             {
@@ -162,6 +163,9 @@ public class GameSceneController : MonoBehaviour, IController
                 }
             }
         });
+        //_dropBubbleSystem.DrawToSpawnBubble(ref _dropBubble, _spawnBubble, _dropSpot);
+        //SpawnNewBubbleAtSpawn();
+        //_dropBubbleSystem.PostSpawnNewBubble(_dropBubble, _spawnBubble, ref _dropBubbleRb, ref _spawnBubbleRb);
     }
 
     void DroppedBubble(DroppedBubbleEvent e)
@@ -317,7 +321,7 @@ public class GameSceneController : MonoBehaviour, IController
 
     void GameOver(GameOverEvent e)
     {
-
+        //if(_dropBubble != null) Destroy(_dropBubble);
     }
 
     GameObject GetBubbleToSpawn(Vector2 spot)
@@ -510,7 +514,6 @@ public class GameSceneController : MonoBehaviour, IController
         if (moveBack)
         {
             int priorityColor = temp[^1].GetComponent<JellyController>().Type;
-            Debug.Log($"{priorityColor}");
             temp.Clear();
             foreach (var jelly in _breakBubble.jellies)
             {

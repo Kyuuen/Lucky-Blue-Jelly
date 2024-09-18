@@ -28,7 +28,13 @@ public class FireCrackerAnimation : MonoBehaviour, IController
             ? ModalContainer.Of(transform)
             : ModalContainer.Find(ContainerKey.Modals);
         modalContainer.Pop(false);
-        
+
+        this.SendCommand(new BoosterInactivateCommand
+        {
+            _boosterType = 2,
+            _isPopupOn = false
+        });
+
         gameObject.GetComponent<Rigidbody2D>().DOMove(mousePos, 1f).SetEase(Ease.OutSine).OnComplete(() =>
         {
             this.SendCommand(new FirecrackerDestroyCommand
@@ -36,11 +42,7 @@ public class FireCrackerAnimation : MonoBehaviour, IController
                 _bubbleIds = FindBubbleInRadius(_bubbleMask),
                 _iceIds = FindIceInRadius(_iceMask),
             });
-            this.SendCommand(new BoosterInactivateCommand
-            {
-                _boosterType = 2,
-                _isPopupOn = false
-            });
+
             GetComponent<SpriteRenderer>().enabled = false;
             _particleSystem.Play();
             Destroy(gameObject, 1f);
@@ -81,7 +83,7 @@ public class FireCrackerAnimation : MonoBehaviour, IController
         // Tìm tất cả các collider trong bán kính
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, radius, layerMask);
         List<string> colliderName = new();
-        foreach(var collider in colliders)
+        foreach (var collider in colliders)
         {
             colliderName.Add(collider.gameObject.name);
         }

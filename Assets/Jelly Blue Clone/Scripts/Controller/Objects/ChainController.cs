@@ -5,7 +5,7 @@ using QFramework;
 using TMPro;
 using Cysharp.Threading.Tasks;
 
-public class ChainController : MonoBehaviour, IController
+public class ChainSimulateController : MonoBehaviour, IController
 {
     [SerializeField] private int _scoreRequire;
     [SerializeField] private List<GameObject> _chainList;

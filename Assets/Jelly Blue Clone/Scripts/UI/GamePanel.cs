@@ -45,6 +45,7 @@ public class GamePanel : MonoBehaviour, IController
 
         if (_prefModel.CurrentLevel.Value <= 20)
         {
+            _prefModel.CurrentLevelToLoad.Value = _prefModel.CurrentLevel.Value;
             _currentLevelIndex = _prefModel.CurrentLevel.Value;
             this.SendCommand(new RandomLevelCommand
             {
@@ -53,7 +54,8 @@ public class GamePanel : MonoBehaviour, IController
         }
         else
         {
-            _currentLevelIndex = Random.Range(2, 20);
+            _currentLevelIndex = Random.Range(5, 20);
+            _prefModel.CurrentLevelToLoad.Value = _currentLevelIndex;
             this.SendCommand(new RandomLevelCommand
             {
                 _levelIndex = _currentLevelIndex,
@@ -90,26 +92,55 @@ public class GamePanel : MonoBehaviour, IController
         }
         _switchBtns.onClick.RemoveAllListeners();
 
+
         _boosterBtns[0].onClick.AddListener(() =>
         {
+            DisableAllButtons(); // Vô hiệu hóa các nút khi nhấn
             AudioManager.Instance.PlayClickSound("click1");
             ActivateBooster(0, _prefModel.UseOfHammer.Value);
+            EnableAllButtons(); // Kích hoạt lại sau khi thực hiện xong
         });
         _boosterBtns[1].onClick.AddListener(() =>
         {
+            DisableAllButtons();
             AudioManager.Instance.PlayClickSound("click1");
             ActivateBooster(1, _prefModel.UseOfStrawberry.Value);
+            EnableAllButtons();
         });
         _boosterBtns[2].onClick.AddListener(() =>
         {
+            DisableAllButtons();
             AudioManager.Instance.PlayClickSound("click1");
             ActivateBooster(2, _prefModel.UseOfFirecracker.Value);
+            EnableAllButtons();
         });
         _switchBtns.onClick.AddListener(() =>
         {
+            DisableAllButtons();
             AudioManager.Instance.PlayClickSound("click1");
             this.SendCommand<SwitchBubbleCommand>();
+            EnableAllButtons();
         });
+    }
+
+    // Hàm để vô hiệu hóa tất cả các nút
+    void DisableAllButtons()
+    {
+        foreach (var button in _boosterBtns)
+        {
+            button.interactable = false;
+        }
+        _switchBtns.interactable = false;
+    }
+
+    // Hàm để kích hoạt lại các nút
+    void EnableAllButtons()
+    {
+        foreach (var button in _boosterBtns)
+        {
+            button.interactable = true;
+        }
+        _switchBtns.interactable = true;
     }
 
     void PostLevelWin(PostLevelWinEvent e)
@@ -121,7 +152,6 @@ public class GamePanel : MonoBehaviour, IController
     {
         OnGoldChanged(_prefModel.Gold.Value);
     }
-
 
     void ActivateBooster(int status, int use)
     {
@@ -199,21 +229,28 @@ public class GamePanel : MonoBehaviour, IController
 
     async void GetNextLevel(int levelIndex)
     {
+        GetLevel(levelIndex);
+        _thisLevel = await GetCurrentLevelConfig();
+        OnScoreChanged(_gameSceneModel.Score.Value);
+        OnMoveChanged(_gameSceneModel.Move.Value);
+    }
+
+    void GetLevel(int levelIndex)
+    {
         if (levelIndex <= 20)
         {
+            _prefModel.CurrentLevelToLoad.Value = levelIndex;
             _currentLevelIndex = levelIndex;
         }
         else
         {
-            _currentLevelIndex = Random.Range(2, 20);
+            _currentLevelIndex = Random.Range(5, 20);
+            _prefModel.CurrentLevelToLoad.Value = _currentLevelIndex;
             this.SendCommand(new RandomLevelCommand
             {
                 _levelIndex = _currentLevelIndex,
             });
         }
-        _thisLevel = await GetCurrentLevelConfig();
-        OnScoreChanged(_gameSceneModel.Score.Value);
-        OnMoveChanged(_gameSceneModel.Move.Value);
     }
 
     async UniTask<LevelObjectSpawner> GetCurrentLevelConfig()

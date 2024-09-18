@@ -22,6 +22,8 @@ public class GameLevelSpawner : MonoBehaviour, IController
         _prefModel = this.GetModel<IPlayerPrefModel>();
         _gameSceneModel = this.GetModel<IGameSceneModel>();
 
+        //_prefModel.SetToTest(testLevel);
+
         this.RegisterEvent<PreGameStartEvent>(async e =>
         {
             _currentLevel = await GetCurrentLevel();
@@ -62,7 +64,7 @@ public class GameLevelSpawner : MonoBehaviour, IController
         }
         else
         {
-            _currentLevelIndex = Random.Range(2, 20);
+            _currentLevelIndex = Random.Range(5, 20);
         }
         SpawnNewLevel();
     }

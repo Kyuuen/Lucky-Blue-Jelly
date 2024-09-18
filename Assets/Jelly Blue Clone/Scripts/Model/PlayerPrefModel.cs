@@ -7,6 +7,7 @@ public interface IPlayerPrefModel : IModel
 {
     BindableProperty<int> Gold {  get; set; }
     BindableProperty<int> CurrentLevel { get; set; }
+    BindableProperty<int> CurrentLevelToLoad { get; set; }
 
     BindableProperty<bool> SoundAvailable { get; set; }
     BindableProperty<bool> VibrateAvailable { get; set; }
@@ -30,6 +31,11 @@ public class PlayerPrefModel : AbstractModel, IPlayerPrefModel
     };
 
     public BindableProperty<int> CurrentLevel { set; get; } = new BindableProperty<int>()
+    {
+        Value = 0
+    };
+
+    public BindableProperty<int> CurrentLevelToLoad { get; set; } = new BindableProperty<int>()
     {
         Value = 0
     };
@@ -62,6 +68,7 @@ public class PlayerPrefModel : AbstractModel, IPlayerPrefModel
         storage = this.GetUtility<IStorage>();
 
         CurrentLevel.Value = storage.LoadInt(nameof(CurrentLevel), 1);
+        CurrentLevelToLoad.Value = storage.LoadInt(nameof(CurrentLevelToLoad), 1);
         Gold.Value = storage.LoadInt(nameof(Gold), 0);
         SoundAvailable.Value = storage.LoadBool(nameof(SoundAvailable), true);
         VibrateAvailable.Value = storage.LoadBool(nameof (VibrateAvailable), true);
@@ -70,6 +77,7 @@ public class PlayerPrefModel : AbstractModel, IPlayerPrefModel
         UseOfFirecracker.Value = storage.LoadInt(nameof(UseOfFirecracker), 0);
 
         CurrentLevel.Register(v => storage.SaveInt(nameof(CurrentLevel), v));
+        CurrentLevelToLoad.Register(v => storage.SaveInt(nameof(CurrentLevelToLoad), v));
         Gold.Register(v=>storage.SaveInt(nameof(Gold), v));
         SoundAvailable.Register(v => storage.SaveBool(nameof(SoundAvailable), v));
         VibrateAvailable.Register(v => storage.SaveBool(nameof (VibrateAvailable), v));

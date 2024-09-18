@@ -54,7 +54,11 @@ public class DropBubbleSystem : AbstractSystem, IDropBubbleSystem
         });
         this.RegisterEvent<BoosterInactivateEvent>(e =>
         {
-            gameStarted = true;
+            UniTask.Create(async () =>
+            {
+                await UniTask.WaitForSeconds(3);
+                gameStarted = true;
+            });
         });
         this.RegisterEvent<BoosterPopupActivateEvent>(e =>
         {
@@ -94,7 +98,10 @@ public class DropBubbleSystem : AbstractSystem, IDropBubbleSystem
 
     public void DrawToSpawnBubble(ref GameObject dropBubble, GameObject spawnBubble, Transform dropSpot)
     {
-        if (!gameStarted) return;
+        if (!gameStarted) 
+        {
+            return; 
+        }
         spawnBubble.transform.position = dropSpot.position;
         dropBubble = spawnBubble;
     }

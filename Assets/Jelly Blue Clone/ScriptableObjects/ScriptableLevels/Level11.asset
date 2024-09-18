@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level11
   m_EditorClassIdentifier: 
   Move: 60
-  ScoreRequest: 140
+  ScoreRequest: 110
   ColorSpawnRate: 80
   bubbles:
   - pos: {x: -3.2, y: -2.1}
@@ -26,7 +26,7 @@ MonoBehaviour:
     numb: 2
     numColor: 1
     colorRate: 1
-  - pos: {x: 0, y: -3.7}
+  - pos: {x: 0, y: -2}
     size: 1
     numb: 3
     numColor: 2

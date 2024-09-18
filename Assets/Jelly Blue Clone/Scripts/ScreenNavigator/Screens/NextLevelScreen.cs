@@ -44,7 +44,7 @@ public class NextLevelScreen : ZBase.UnityScreenNavigator.Core.Screens.Screen, I
         UniTask.Create(async () =>
         {
             await UniTask.Delay(2700);
-            _levelText[3].color = Color.white;
+            if (_levelText[3] != null) { _levelText[3].color = Color.white; }
         });
     }
 

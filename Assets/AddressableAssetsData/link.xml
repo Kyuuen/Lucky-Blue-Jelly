@@ -6,7 +6,7 @@
     <type fullname="BubbleController" preserve="all" />
     <type fullname="BubbleCrackBehaviour" preserve="all" />
     <type fullname="BunchOfCoin" preserve="all" />
-    <type fullname="ChainController" preserve="all" />
+    <type fullname="ChainSimulateController" preserve="all" />
     <type fullname="DragToMoveUI" preserve="all" />
     <type fullname="FireCrackerAnimation" preserve="all" />
     <type fullname="FireCrackerBoosterUI" preserve="all" />

@@ -5,6 +5,7 @@ using QFramework;
 using TMPro;
 using SnakeGame;
 using DG.Tweening;
+using Cysharp.Threading.Tasks;
 
 public interface IMouseMovementSystem : ISystem
 {
@@ -47,7 +48,11 @@ public class MouseMovementSystem : AbstractSystem, IMouseMovementSystem
         });
         this.RegisterEvent<BoosterInactivateEvent>(e =>
         {
-            gameStarted = true;
+            UniTask.Create(async () =>
+            {
+                await UniTask.WaitForSeconds(3);
+                gameStarted = true;
+            });
         });
         this.RegisterEvent<BoosterPopupActivateEvent>(e =>
         {

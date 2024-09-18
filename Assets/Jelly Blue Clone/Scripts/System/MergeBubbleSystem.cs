@@ -17,13 +17,6 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
     protected override void OnInit()
     {
         _gameSceneModel = this.GetModel<IGameSceneModel>();
-        this.RegisterEvent<PlayOnEvent>(PlayOn);
-    }
-
-    void PlayOn(PlayOnEvent e)
-    {
-        //int startIndex = _gameSceneModel.Bubbles.Count - 7;
-        //_gameSceneModel.Bubbles.RemoveRange(startIndex, 5);
     }
 
     public void GetBubbleContact(int id, int otherId)
@@ -40,6 +33,7 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
             MergeBubbleWithManySameColor(id, otherId, sameColorTypes);
         }
     }
+
     public async void MergeBubbleWithOneSameColor(int id, int otherId, int color)
     {
         if (BothSingleColor(info.jellyColor, otherInfo.jellyColor)) //if both of them are single color
@@ -234,7 +228,6 @@ public class MergeBubbleSystem : AbstractSystem, IMergeBubbleSystem
 
         if (beingTaken.jellyColor.Count >= beingTaken.MaxNumb)
         {
-            Debug.Log("Reach max");
             int priorityColor = tempColors[^1];
             tempColors.Clear();
             moveBack = true;

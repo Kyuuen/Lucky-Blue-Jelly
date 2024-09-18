@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Level15
   m_EditorClassIdentifier: 
   Move: 60
-  ScoreRequest: 140
+  ScoreRequest: 110
   ColorSpawnRate: 80
   bubbles:
   - pos: {x: -3.6, y: -4}
