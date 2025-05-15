@@ -7,7 +7,7 @@ using UnityEngine.AddressableAssets;
 
 public class GameLevelSpawner : MonoBehaviour, IController
 {
-    //[SerializeField] private int testLevel;
+    [SerializeField] private int testLevel;
     private GameObject _currentLevel;
     private int _currentLevelIndex;
 
@@ -22,7 +22,7 @@ public class GameLevelSpawner : MonoBehaviour, IController
         _prefModel = this.GetModel<IPlayerPrefModel>();
         _gameSceneModel = this.GetModel<IGameSceneModel>();
 
-        //_prefModel.SetToTest(testLevel);
+        _prefModel.SetToTest(testLevel);
 
         this.RegisterEvent<PreGameStartEvent>(async e =>
         {

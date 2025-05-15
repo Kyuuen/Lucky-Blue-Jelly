@@ -65,7 +65,7 @@ public class SpawnJellySystem : AbstractSystem, ISpawnJellySystem
         int color;
         // Randomly select 3 unique colors
         List<int> selectedColors = new List<int>();
-        int numOfColor = Random.Range(1, 4);
+        int numOfColor = Random.Range(1, 3);
         bool sameColor = (Random.Range(0, 100) < sameColorRate); //Random base on rate if new bubble contain more color than spawned
         if (sameColor) //new will have the sam color as spawned
         {

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 605b1b2f6ca1203419582e3eca81e979, type: 3}
   m_Name: Level2
   m_EditorClassIdentifier: 
-  Move: 60
+  Move: 30
   ScoreRequest: 50
   ColorSpawnRate: 100
   bubbles:

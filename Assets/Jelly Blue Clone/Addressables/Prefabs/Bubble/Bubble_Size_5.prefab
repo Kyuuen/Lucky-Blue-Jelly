@@ -137,7 +137,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.5, y: 2.3666348, z: 2.3730419}
+  m_LocalScale: {x: 1.9, y: 1.7986425, z: 1.8035117}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 8822281598147349022}
@@ -323,6 +323,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   iD: 0
   jellies: []
+  maxNumb: 0
   _isLocked: 0
   _requestPoint: 0
   _lockText: {fileID: 0}
@@ -330,6 +331,7 @@ MonoBehaviour:
   extents: {x: 0, y: 0, z: 0}
   isDone: 0
   _firstHit: 0
+  _spawnEarly: 0
   _rb: {fileID: 0}
   _animator: {fileID: 3671662629227364167}
   _spriteRenderer: {fileID: 7069839030541889703}
