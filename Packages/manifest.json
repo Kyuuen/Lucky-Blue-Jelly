@@ -1,8 +1,7 @@
 {
   "dependencies": {
-    "com.benoitfreslon.vibration": "file:C:/Users/DO MINH DUC/Downloads/Vibration-master/Vibration-master",
+    "com.benoitfreslon.vibration": "https://github.com/BenoitFreslon/Vibration.git",
     "com.cysharp.unitask": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
-    "com.dbrizov.naughtyattributes": "file:C:/Users/DO MINH DUC/Downloads/NaughtyAttributes-master/NaughtyAttributes-master/Assets/NaughtyAttributes",
     "com.unity.addressables": "1.21.21",
     "com.unity.collab-proxy": "2.4.3",
     "com.unity.device-simulator.devices": "1.0.0",
